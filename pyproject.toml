@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "ensembleset"
@@ -10,20 +10,42 @@ authors = [
 ]
 description = "Ensemble dataset generator for tabular data prediction and modeling projects."
 readme = "README.md"
+license = {text = "GPLv3"}
 requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["optimization", "ensemble-learning", "ensemble-techniques", "feature-engineering", "machine-learning", "data-science"]
+
 dependencies = [
   "h5py",
   "numpy",
   "pandas",
   "scikit-learn"
 ]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel",
+    "matplotlib"
 ]
-license = "GPL-3.0-or-later"
-license-files = ["LICEN[CS]E*"]
 
 [project.urls]
 Homepage = "https://github.com/gperdrizet/ensembleset"
+Repository = "https://github.com/gperdrizet/ensembleset"
 Issues = "https://github.com/gperdrizet/ensembleset/issues"
+PyPI = "https://pypi.org/project/ensembleset"
+
+[tool.setuptools.packages.find]
+include = ["ensembleset*"]
+exclude = ["tests*", "notebooks*", "docs*", "data*"]

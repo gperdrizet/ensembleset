@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include requirements.txt
+include pyproject.toml
+recursive-include ensembleset *.py
+recursive-exclude tests *
+recursive-exclude notebooks *
+recursive-exclude docs *
+recursive-exclude data *
+exclude .gitignore

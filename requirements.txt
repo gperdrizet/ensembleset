@@ -1,15 +1,5 @@
 h5py
-pandas
-scikit-learn
 ipykernel
 matplotlib
-hatchling
-twine
-build
-coverage
-flake8
-optuna
-optuna_dashboard
-gunicorn
-psycopg2-binary
-pickleshare
+pandas
+scikit-learn
