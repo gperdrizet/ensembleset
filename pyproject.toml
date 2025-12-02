@@ -36,7 +36,8 @@ dependencies = [
 ]
 
 dev = [
-    "ipykernel"
+    "ipykernel",
+    "matplotlib"
 ]
 
 [project.urls]
