@@ -11,7 +11,7 @@ from pandas.api.types import is_numeric_dtype
 
 import ensembleset.feature_methods as fm
 import ensembleset.preprocessing_methods as pm
-import tests.dummy_dataframe as test_data
+import dummy_dataframe as test_data
 
 Path('tests/logs').mkdir(parents=True, exist_ok=True)
 

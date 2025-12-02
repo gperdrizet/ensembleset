@@ -7,8 +7,9 @@ from pathlib import Path
 import h5py
 import numpy as np
 import pandas as pd
-import ensembleset.dataset as ds
-import tests.dummy_dataframe as test_data
+
+from ensembleset import DataSet
+import dummy_dataframe as test_data
 
 # pylint: disable=protected-access
 
@@ -37,7 +38,7 @@ class TestDataSetInit(unittest.TestCase):
     def test_class_arguments(self):
         '''Tests assignments of class attributes from user arguments.'''
 
-        dataset = ds.DataSet(
+        dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -52,7 +53,7 @@ class TestDataSetInit(unittest.TestCase):
         self.assertEqual(dataset.data_directory, 'ensembleset_data')
         self.assertEqual(dataset.ensembleset_base_name, 'ensembleset')
 
-        dataset = ds.DataSet(
+        dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -65,7 +66,7 @@ class TestDataSetInit(unittest.TestCase):
         self.assertEqual(dataset.ensembleset_base_name, 'test')
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label=2, # Bad label
                 train_data=self.dummy_df.copy(),
                 test_data=self.dummy_df.copy(),
@@ -73,7 +74,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data='Not a Pandas Dataframe', # Bad train data
                 test_data=self.dummy_df.copy(),
@@ -81,7 +82,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data='Not a Pandas Dataframe', # Bad test data
@@ -89,7 +90,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=self.dummy_df.copy(),
@@ -97,7 +98,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=None,
@@ -105,7 +106,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=None,
@@ -114,7 +115,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(TypeError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=None,
@@ -123,7 +124,7 @@ class TestDataSetInit(unittest.TestCase):
             )
 
         with self.assertRaises(OSError):
-            ds.DataSet(
+            DataSet(
                 label='float_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=None,
@@ -135,7 +136,7 @@ class TestDataSetInit(unittest.TestCase):
     def test_label_assignment(self):
         '''Tests assigning and saving labels.'''
 
-        dataset = ds.DataSet(
+        dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -145,7 +146,7 @@ class TestDataSetInit(unittest.TestCase):
         self.assertEqual(dataset.train_labels[-1], 7.0)
         self.assertEqual(dataset.test_labels[-1], 7.0)
 
-        dataset=ds.DataSet(
+        dataset=DataSet(
             label='bad_label_feature',
             train_data=self.dummy_df,
             test_data=self.dummy_df,
@@ -159,7 +160,7 @@ class TestDataSetInit(unittest.TestCase):
     def test_pipeline_options(self):
         '''Tests the creation of feature engineering pipeline options'''
 
-        dataset = ds.DataSet(
+        dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -178,7 +179,7 @@ class TestDataPipelineGen(unittest.TestCase):
 
         self.dummy_df = test_data.DUMMY_DF
 
-        self.dataset = ds.DataSet(
+        self.dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -206,7 +207,7 @@ class TestFeatureSelection(unittest.TestCase):
 
         self.dummy_df = test_data.DUMMY_DF
 
-        self.dataset = ds.DataSet(
+        self.dataset = DataSet(
             label='floats_pos',
             train_data=self.dummy_df.copy(),
             test_data=self.dummy_df.copy(),
@@ -238,7 +239,7 @@ class TestDatasetGeneration(unittest.TestCase):
         '''Tests generation of datasets.'''
 
         for test_df in [None, self.dummy_df.copy()]:
-            dataset = ds.DataSet(
+            dataset = DataSet(
                 label='floats_pos',
                 train_data=self.dummy_df.copy(),
                 test_data=test_df,
