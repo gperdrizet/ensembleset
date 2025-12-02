@@ -1,6 +1,6 @@
 # EnsembleSet
 
-[![PyPI release](https://github.com/gperdrizet/ensembleset/actions/workflows/publish_pypi.yml/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/publish_pypi.yml) [![Python CI](https://github.com/gperdrizet/ensembleset/actions/workflows/python_ci.yml/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/python_ci.yml) [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://gperdrizet.github.io/ensembleset/)
+[![Publish to PyPI](https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-pypi.yml/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-pypi.yml) [![Publish to TestPyPI](https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-testpypi.yml/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-testpypi.yml) [![PR Validation](https://github.com/gperdrizet/ensembleset/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/pr-validation.yml) [![pages-build-deployment](https://github.com/gperdrizet/ensembleset/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/gperdrizet/ensembleset/actions/workflows/pages/pages-build-deployment) [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://gperdrizet.github.io/ensembleset/)
 
 EnsembleSet generates dataset ensembles by applying a randomized sequence of feature engineering methods to a randomized subset of input features.
 
