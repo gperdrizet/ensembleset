@@ -8,7 +8,7 @@ jobs:
   test-build:
     name: Test Build Package
     runs-on: ubuntu-latest
-    environment: test-pypi
+    environment: testpypi
     permissions:
       contents: read
     
@@ -51,7 +51,7 @@ jobs:
     name: Deploy to TestPyPI
     needs: test-build  # Only run if build succeeds
     runs-on: ubuntu-latest
-    environment: test-pypi
+    environment: testpypi
     permissions:
       contents: read
       id-token: write  # Required for trusted publishing
