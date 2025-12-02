@@ -1,4 +1,20 @@
-'''Collection of functions to run feature engineering operations.'''
+"""Collection of functions to run feature engineering operations.
+
+This module provides feature engineering functions for generating ensemble
+datasets. Functions include polynomial features, splines, logarithmic and
+exponential transformations, ratio and arithmetic operations, Gaussian KDE
+smoothing, and binning. String features can be encoded using one-hot or
+ordinal encoding.
+
+All functions follow a consistent interface accepting training and testing
+DataFrames, feature lists, and keyword arguments, returning the transformed
+DataFrames with minimal data leakage.
+
+See Also
+--------
+ensembleset.preprocessing_methods : Data preprocessing utilities
+ensembleset.feature_engineerings : Configuration dictionaries for methods
+"""
 
 import logging
 import multiprocessing as mp
@@ -33,8 +49,30 @@ def onehot_encoding(
         features:list,
         kwargs:dict
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    '''Runs sklearn's one hot encoder.'''
+    """Apply one-hot encoding to categorical string features.
+    
+    Parameters
+    ----------
+    train_df : pd.DataFrame
+        Training data containing features to encode.
+    test_df : pd.DataFrame or None
+        Testing data to apply fitted encoder to.
+    features : list of str or None
+        Names of string feature columns to encode.
+    kwargs : dict
+        Keyword arguments passed to sklearn.preprocessing.OneHotEncoder.
+    
+    Returns
+    -------
+    train_df : pd.DataFrame
+        Training data with one-hot encoded features replacing originals.
+    test_df : pd.DataFrame or None
+        Testing data with one-hot encoded features, or None if input was None.
+    
+    See Also
+    --------
+    ordinal_encoding : Alternative ordinal encoding for string features
+    """
 
     logger = logging.getLogger(__name__ + '.onehot_encoding')
     logger.addHandler(logging.NullHandler())
@@ -70,8 +108,30 @@ def ordinal_encoding(
         features:list,
         kwargs:dict
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    '''Runs sklearn's ordinal encoder.'''
+    """Apply ordinal encoding to categorical string features.
+    
+    Parameters
+    ----------
+    train_df : pd.DataFrame
+        Training data containing features to encode.
+    test_df : pd.DataFrame or None
+        Testing data to apply fitted encoder to.
+    features : list of str or None
+        Names of string feature columns to encode.
+    kwargs : dict
+        Keyword arguments passed to sklearn.preprocessing.OrdinalEncoder.
+    
+    Returns
+    -------
+    train_df : pd.DataFrame
+        Training data with ordinal encoded features in place.
+    test_df : pd.DataFrame or None
+        Testing data with ordinal encoded features, or None if input was None.
+    
+    See Also
+    --------
+    onehot_encoding : Alternative one-hot encoding for string features
+    """
 
     logger = logging.getLogger(__name__ + '.ordinal_encoding')
     logger.addHandler(logging.NullHandler())
@@ -96,8 +156,33 @@ def poly_features(
         kwargs:dict,
         shortcircuit_preprocessing:bool = False
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    '''Runs sklearn's polynomial feature transformer.'''
+    """Generate polynomial features from selected feature combinations.
+    
+    Parameters
+    ----------
+    train_df : pd.DataFrame
+        Training data containing features to transform.
+    test_df : pd.DataFrame or None
+        Testing data to apply fitted transformer to.
+    features : list of str
+        Names of feature columns to generate polynomial features from.
+    kwargs : dict
+        Keyword arguments passed to sklearn.preprocessing.PolynomialFeatures.
+        Common keys: 'degree' (2 or 3).
+    shortcircuit_preprocessing : bool, default=False
+        If True, skip preprocessing steps.
+    
+    Returns
+    -------
+    train_df : pd.DataFrame
+        Training data with polynomial features added.
+    test_df : pd.DataFrame or None
+        Testing data with polynomial features added, or None if input was None.
+    
+    See Also
+    --------
+    spline_features : Alternative spline-based feature transformation
+    """
 
     logger = logging.getLogger(__name__ + '.poly_features')
     logger.addHandler(logging.NullHandler())

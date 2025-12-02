@@ -3,8 +3,24 @@ include LICENSE
 include requirements.txt
 include pyproject.toml
 recursive-include ensembleset *.py
-recursive-exclude tests *
-recursive-exclude notebooks *
+
+# Exclude documentation
 recursive-exclude docs *
+exclude docs
+
+# Exclude tests and test data
+recursive-exclude tests *
+recursive-exclude test *
+
+# Exclude development files
+recursive-exclude notebooks *
 recursive-exclude data *
 exclude .gitignore
+exclude .github
+
+# Exclude build artifacts
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store
+recursive-exclude ensembleset.egg-info *

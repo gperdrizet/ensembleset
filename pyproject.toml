@@ -39,6 +39,12 @@ dev = [
     "ipykernel",
     "matplotlib"
 ]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+    "pandoc"
+]
 
 [project.urls]
 Homepage = "https://github.com/gperdrizet/ensembleset"
@@ -46,6 +52,5 @@ Repository = "https://github.com/gperdrizet/ensembleset"
 Issues = "https://github.com/gperdrizet/ensembleset/issues"
 PyPI = "https://pypi.org/project/ensembleset"
 
-[tool.setuptools.packages.find]
-include = ["ensembleset*"]
-exclude = ["tests*", "notebooks*", "docs*", "data*"]
+[tool.setuptools]
+packages = ["ensembleset"]

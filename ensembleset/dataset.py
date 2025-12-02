@@ -1,5 +1,40 @@
-'''Generates variations of a dataset using a pool of feature engineering
-techniques. Used for training ensemble models.'''
+"""Generates variations of a dataset using a pool of feature engineering techniques.
+
+This module provides the DataSet class for generating ensemble datasets through
+randomized application of feature engineering methods. Each generated dataset
+applies a different sequence of feature engineering techniques to randomly
+selected subsets of features, enabling training of diverse ensemble models.
+
+The feature engineering pipeline includes methods such as polynomial features,
+splines, logarithmic transformations, ratios, exponentials, sums, differences,
+Gaussian KDE smoothing, and binning. String features can be encoded using
+one-hot or ordinal encoding.
+
+Examples
+--------
+>>> import pandas as pd
+>>> import ensembleset.dataset as ds
+>>> 
+>>> # Create sample data
+>>> train_df = pd.DataFrame({'feature1': [1, 2, 3], 'label': [0, 1, 0]})
+>>> test_df = pd.DataFrame({'feature1': [4, 5], 'label': [1, 0]})
+>>> 
+>>> # Initialize DataSet
+>>> data_ensemble = ds.DataSet(
+...     label='label',
+...     train_data=train_df,
+...     test_data=test_df,
+...     data_directory='./data'
+... )
+>>> 
+>>> # Generate 10 ensemble datasets
+>>> data_ensemble.make_datasets(n_datasets=10, frac_features=0.1, n_steps=5)
+
+See Also
+--------
+ensembleset.feature_methods : Feature engineering function implementations
+ensembleset.preprocessing_methods : Data preprocessing utilities
+"""
 
 import time
 import logging
@@ -18,7 +53,119 @@ logging.captureWarnings(True)
 
 
 class DataSet:
-    '''Dataset generator class.'''
+    """Dataset ensemble generator using randomized feature engineering.
+    
+    This class generates multiple dataset variations by applying randomized
+    sequences of feature engineering methods to randomized subsets of input
+    features. Each dataset in the ensemble undergoes a unique transformation
+    pipeline, making it suitable for training diverse ensemble models.
+    
+    The class handles both training and testing data with minimal data leakage
+    by fitting transformations on training data and applying them to both
+    training and testing sets. Generated datasets are saved to HDF5 format
+    for efficient storage and retrieval.
+    
+    Parameters
+    ----------
+    label : str
+        Name of the label column in the training and testing DataFrames.
+        This column will be extracted and stored separately from the features.
+    train_data : pd.DataFrame
+        Training dataset containing both features and the label column.
+        Must include the column specified by `label` parameter.
+    test_data : pd.DataFrame, optional
+        Testing dataset containing both features and the label column.
+        If provided, transformations fitted on training data will be
+        applied to this data. Default is None.
+    string_features : list of str, optional
+        List of column names containing string/categorical features that
+        require encoding (one-hot or ordinal) before numerical feature
+        engineering. Default is None.
+    data_directory : str, optional
+        Path to directory where generated ensemble datasets will be saved
+        in HDF5 format. Directory will be created if it doesn't exist.
+        Default is 'ensembleset_data'.
+    ensembleset_base_name : str, optional
+        Base name for the output HDF5 file. The file will be named
+        '{ensembleset_base_name}.h5'. Default is 'ensembleset'.
+    
+    Attributes
+    ----------
+    label : str
+        Name of the label column.
+    train_data : pd.DataFrame
+        Training features (without label column).
+    test_data : pd.DataFrame or None
+        Testing features (without label column).
+    train_labels : np.ndarray
+        Training labels extracted from train_data.
+    test_labels : np.ndarray or None
+        Testing labels extracted from test_data.
+    string_features : list of str or None
+        List of string feature column names.
+    data_directory : str
+        Path to output directory.
+    ensembleset_base_name : str
+        Base name for output files.
+    string_encodings : dict
+        Dictionary of available string encoding methods.
+    numerical_methods : dict
+        Dictionary of available numerical feature engineering methods.
+    
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> import ensembleset.dataset as ds
+    >>> 
+    >>> # Create sample training and testing data
+    >>> train_df = pd.DataFrame({
+    ...     'num_feature1': [1.0, 2.0, 3.0, 4.0],
+    ...     'num_feature2': [10.0, 20.0, 30.0, 40.0],
+    ...     'cat_feature': ['A', 'B', 'A', 'B'],
+    ...     'target': [0, 1, 0, 1]
+    ... })
+    >>> test_df = pd.DataFrame({
+    ...     'num_feature1': [5.0, 6.0],
+    ...     'num_feature2': [50.0, 60.0],
+    ...     'cat_feature': ['A', 'B'],
+    ...     'target': [1, 0]
+    ... })
+    >>> 
+    >>> # Initialize DataSet with string feature specification
+    >>> ensemble = ds.DataSet(
+    ...     label='target',
+    ...     train_data=train_df,
+    ...     test_data=test_df,
+    ...     string_features=['cat_feature'],
+    ...     data_directory='./ensemble_output',
+    ...     ensembleset_base_name='my_ensemble'
+    ... )
+    >>> 
+    >>> # Generate 5 datasets with 3 feature engineering steps each,
+    >>> # using 20% of features per step
+    >>> output_file = ensemble.make_datasets(
+    ...     n_datasets=5,
+    ...     frac_features=0.2,
+    ...     n_steps=3
+    ... )
+    
+    Notes
+    -----
+    - Label columns are automatically removed from feature DataFrames and
+      stored separately as numpy arrays.
+    - String features are encoded before numerical transformations are applied.
+    - All transformations are fitted on training data only to prevent data
+      leakage, even when test data is provided.
+    - Generated datasets are saved in HDF5 format with the structure:
+      dataset.h5/train/labels, dataset.h5/train/dataset_N,
+      dataset.h5/test/labels, dataset.h5/test/dataset_N
+    - Uses multiprocessing for parallel dataset generation.
+    
+    See Also
+    --------
+    make_datasets : Generate ensemble datasets with specified parameters
+    ensembleset.feature_engineerings : Configuration of available methods
+    """
 
     def __init__(
             self,
@@ -112,7 +259,111 @@ class DataSet:
             frac_features: int,
             n_steps: int
     ):
-        '''Makes n datasets with different feature subsets and pipelines.'''
+        """Generate ensemble datasets using randomized feature engineering pipelines.
+        
+        Creates multiple dataset variations by applying randomized sequences of
+        feature engineering methods to randomly selected subsets of features.
+        Each dataset undergoes a unique transformation pipeline, with feature
+        selection re-randomized at each engineering step.
+        
+        The method uses multiprocessing to generate datasets in parallel, with
+        the number of worker processes equal to half the available CPU cores.
+        All generated datasets are saved to an HDF5 file in the specified
+        data directory.
+        
+        Parameters
+        ----------
+        n_datasets : int
+            Number of dataset variations to generate. Each dataset will have
+            a unique sequence of feature engineering transformations applied.
+            Must be a positive integer.
+        frac_features : float
+            Fraction of features to randomly select for each feature engineering
+            step. Must be between 0 and 1. For example, 0.1 means 10% of
+            available features are selected at each step. The selection is
+            re-randomized for each step in the pipeline.
+        n_steps : int
+            Number of feature engineering steps to apply in sequence for each
+            dataset. Each step randomly selects a method from the available
+            feature engineering techniques. Must be a positive integer.
+        
+        Returns
+        -------
+        str
+            Path to the generated HDF5 file containing all ensemble datasets.
+            The file structure is:
+            - train/labels: Training labels (np.ndarray)
+            - train/dataset_0, train/dataset_1, ...: Training feature sets
+            - test/labels: Testing labels (np.ndarray, if test_data provided)
+            - test/dataset_0, test/dataset_1, ...: Testing feature sets
+        
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import ensembleset.dataset as ds
+        >>> 
+        >>> # Create sample data
+        >>> train_df = pd.DataFrame({
+        ...     'feature1': [1, 2, 3, 4, 5],
+        ...     'feature2': [10, 20, 30, 40, 50],
+        ...     'feature3': [100, 200, 300, 400, 500],
+        ...     'label': [0, 1, 0, 1, 0]
+        ... })
+        >>> 
+        >>> # Initialize ensemble
+        >>> ensemble = ds.DataSet(
+        ...     label='label',
+        ...     train_data=train_df,
+        ...     data_directory='./output'
+        ... )
+        >>> 
+        >>> # Generate 10 datasets, using 20% of features per step,
+        >>> # with 5 engineering steps each
+        >>> output_file = ensemble.make_datasets(
+        ...     n_datasets=10,
+        ...     frac_features=0.2,
+        ...     n_steps=5
+        ... )
+        >>> print(f"Datasets saved to: {output_file}")
+        
+        >>> # With test data included
+        >>> test_df = pd.DataFrame({
+        ...     'feature1': [6, 7],
+        ...     'feature2': [60, 70],
+        ...     'feature3': [600, 700],
+        ...     'label': [1, 0]
+        ... })
+        >>> 
+        >>> ensemble_with_test = ds.DataSet(
+        ...     label='label',
+        ...     train_data=train_df,
+        ...     test_data=test_df
+        ... )
+        >>> 
+        >>> output_file = ensemble_with_test.make_datasets(
+        ...     n_datasets=5,
+        ...     frac_features=0.3,
+        ...     n_steps=3
+        ... )
+        
+        Notes
+        -----
+        - Each dataset has a unique random sequence of feature engineering methods
+        - Feature selection is re-randomized after each engineering step
+        - At least 1 feature is always selected, even if frac_features * n_features < 1
+        - String features are encoded first (if specified), then numerical methods
+          are applied
+        - All transformations are fitted on training data only to prevent leakage
+        - When test_data is provided, fitted transformations are applied to both
+          training and testing data
+        - Uses multiprocessing with worker count = cpu_count() // 2
+        - Progress and debugging information is logged during execution
+        
+        See Also
+        --------
+        ensembleset.feature_methods : Individual feature engineering functions
+        ensembleset.preprocessing_methods : Data preprocessing utilities
+        """
 
         logger = logging.getLogger(__name__ + '.make_datasets')
         logger.addHandler(logging.NullHandler())

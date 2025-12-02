@@ -1,0 +1,3 @@
+# This file tells GitHub Pages not to use Jekyll processing
+# It's needed because Sphinx uses directories starting with underscores
+# like _static and _templates which Jekyll would ignore by default
