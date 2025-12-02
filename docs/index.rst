@@ -1,13 +1,25 @@
 EnsembleSet Documentation
 =========================
 
-.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/publish_pypi.yml/badge.svg
-   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/publish_pypi.yml
-   :alt: PyPI release
+.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-pypi.yml/badge.svg
+   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-pypi.yml
+   :alt: Publish to PyPI
 
-.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/python_ci.yml/badge.svg
-   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/python_ci.yml
-   :alt: Python CI
+.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-testpypi.yml/badge.svg
+   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/publish-to-testpypi.yml
+   :alt: Publish to TestPyPI
+
+.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/pr-validation.yml/badge.svg
+   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/pr-validation.yml
+   :alt: PR Validation
+
+.. image:: https://github.com/gperdrizet/ensembleset/actions/workflows/pages/pages-build-deployment/badge.svg
+   :target: https://github.com/gperdrizet/ensembleset/actions/workflows/pages/pages-build-deployment
+   :alt: pages-build-deployment
+
+.. image:: https://img.shields.io/badge/docs-GitHub%20Pages-blue
+   :target: https://gperdrizet.github.io/ensembleset/
+   :alt: Documentation
 
 EnsembleSet generates dataset ensembles by applying a randomized sequence of feature engineering methods to a randomized subset of input features.
 
