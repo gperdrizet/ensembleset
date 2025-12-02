@@ -1,4 +1,14 @@
-'''Collection of functions to clean and preprocess features before engineering.'''
+"""Data preprocessing utilities for feature engineering pipelines.
+
+This module provides preprocessing functions used to clean and prepare data
+before and after feature engineering operations. Functions include handling
+missing values, removing constant features, scaling, type conversions, and
+managing extreme values.
+
+See Also
+--------
+ensembleset.feature_methods : Feature engineering operations
+"""
 
 import logging
 from typing import Tuple

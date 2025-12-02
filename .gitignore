@@ -6,3 +6,8 @@ dist
 test
 logs
 *.h5
+ensembleset.egg-info
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
