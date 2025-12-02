@@ -1,0 +1,1170 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ensembleset.feature_methods &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d996134c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../feature_catalog.html">Feature Engineering Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ensembleset.feature_methods</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ensembleset.feature_methods</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Collection of functions to run feature engineering operations.</span>
+
+<span class="sd">This module provides feature engineering functions for generating ensemble</span>
+<span class="sd">datasets. Functions include polynomial features, splines, logarithmic and</span>
+<span class="sd">exponential transformations, ratio and arithmetic operations, Gaussian KDE</span>
+<span class="sd">smoothing, and binning. String features can be encoded using one-hot or</span>
+<span class="sd">ordinal encoding.</span>
+
+<span class="sd">All functions follow a consistent interface accepting training and testing</span>
+<span class="sd">DataFrames, feature lists, and keyword arguments, returning the transformed</span>
+<span class="sd">DataFrames with minimal data leakage.</span>
+
+<span class="sd">See Also</span>
+<span class="sd">--------</span>
+<span class="sd">ensembleset.preprocessing_methods : Data preprocessing utilities</span>
+<span class="sd">ensembleset.feature_engineerings : Configuration dictionaries for methods</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">choices</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">e</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">permutations</span><span class="p">,</span> <span class="n">combinations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_kde</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OneHotEncoder</span><span class="p">,</span>
+    <span class="n">OrdinalEncoder</span><span class="p">,</span>
+    <span class="n">PolynomialFeatures</span><span class="p">,</span>
+    <span class="n">SplineTransformer</span><span class="p">,</span>
+    <span class="n">KBinsDiscretizer</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ensembleset.preprocessing_methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_features</span><span class="p">,</span> <span class="n">scale_to_range</span><span class="p">,</span> <span class="n">add_new_features</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.width&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_rows&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_columns&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="onehot_encoding">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.onehot_encoding">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">onehot_encoding</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply one-hot encoding to categorical string features.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data containing features to encode.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data to apply fitted encoder to.</span>
+<span class="sd">    features : list of str or None</span>
+<span class="sd">        Names of string feature columns to encode.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Keyword arguments passed to sklearn.preprocessing.OneHotEncoder.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data with one-hot encoded features replacing originals.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data with one-hot encoded features, or None if input was None.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ordinal_encoding : Alternative ordinal encoding for string features</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.onehot_encoding&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;One-hot encoding string features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">encoder</span><span class="o">=</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">encoded_data</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+        <span class="n">encoded_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">())</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">encoded_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">encoded_data</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+            <span class="n">encoded_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">())</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">test_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">encoded_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="n">test_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="ordinal_encoding">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.ordinal_encoding">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ordinal_encoding</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply ordinal encoding to categorical string features.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data containing features to encode.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data to apply fitted encoder to.</span>
+<span class="sd">    features : list of str or None</span>
+<span class="sd">        Names of string feature columns to encode.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Keyword arguments passed to sklearn.preprocessing.OrdinalEncoder.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data with ordinal encoded features in place.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data with ordinal encoded features, or None if input was None.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    onehot_encoding : Alternative one-hot encoding for string features</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.ordinal_encoding&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Ordinal encoding string features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">encoder</span><span class="o">=</span><span class="n">OrdinalEncoder</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">train_df</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_df</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">=</span><span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="poly_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.poly_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">poly_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">shortcircuit_preprocessing</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate polynomial features from selected feature combinations.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data containing features to transform.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data to apply fitted transformer to.</span>
+<span class="sd">    features : list of str</span>
+<span class="sd">        Names of feature columns to generate polynomial features from.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Keyword arguments passed to sklearn.preprocessing.PolynomialFeatures.</span>
+<span class="sd">        Common keys: &#39;degree&#39; (2 or 3).</span>
+<span class="sd">    shortcircuit_preprocessing : bool, default=False</span>
+<span class="sd">        If True, skip preprocessing steps.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    train_df : pd.DataFrame</span>
+<span class="sd">        Training data with polynomial features added.</span>
+<span class="sd">    test_df : pd.DataFrame or None</span>
+<span class="sd">        Testing data with polynomial features added, or None if input was None.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    spline_features : Alternative spline-based feature transformation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.poly_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding polynomial features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shortcircuit_preprocessing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+            <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+                <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scale_to_range&#39;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_working_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+
+            <span class="n">transformer</span><span class="o">=</span><span class="n">PolynomialFeatures</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">transformed_data</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                <span class="n">new_columns</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+                <span class="n">transformed_train_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">new_columns</span><span class="p">)</span>
+
+                <span class="n">transformed_test_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="n">transformed_data</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                    <span class="n">new_columns</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+                    <span class="n">transformed_test_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">new_columns</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;ValueError in poly feature transformer&#39;</span><span class="p">)</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span> <span class="o">=</span> <span class="n">transformed_train_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span> <span class="o">=</span> <span class="n">transformed_test_df</span><span class="p">,</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="spline_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.spline_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spline_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">shortcircuit_preprocessing</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Runs sklearn&#39;s polynomial feature transformer.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.spline_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding spline features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shortcircuit_preprocessing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+            <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scale_to_range&#39;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_working_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+
+            <span class="n">transformer</span><span class="o">=</span><span class="n">SplineTransformer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">transformed_data</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                <span class="n">new_columns</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+                <span class="n">transformed_train_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">new_columns</span><span class="p">)</span>
+
+                <span class="n">transformed_test_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="n">transformed_data</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                    <span class="n">new_columns</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+                    <span class="n">transformed_test_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">new_columns</span><span class="p">)</span>
+
+                <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+                    <span class="n">new_train_features</span> <span class="o">=</span> <span class="n">transformed_train_df</span><span class="p">,</span>
+                    <span class="n">new_test_features</span> <span class="o">=</span> <span class="n">transformed_test_df</span><span class="p">,</span>
+                    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">,</span>
+                    <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span>
+                <span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;ValueError in spline feature transformer&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="log_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.log_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Takes log of feature, uses sklearn min-max scaler if needed</span>
+<span class="sd">    to avoid undefined log errors.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.log_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding log features&#39;</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">preprocess_features</span><span class="p">(</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+        <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_constants&#39;</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Will compute log for </span><span class="si">%s</span><span class="s1"> features&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">scale_to_range</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_working_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_working_df</span><span class="p">,</span>
+            <span class="n">min_val</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_val</span><span class="o">=</span><span class="mi">10</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_working_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Input test features for log:&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">test_working_df</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+
+        <span class="n">new_train_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Taking log of feature </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">))</span>
+
+            <span class="c1"># try:</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_log2&#39;</span><span class="p">)</span>
+                <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span>
+                        <span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                        <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_log2&#39;</span><span class="p">)</span>
+                    <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span>
+                            <span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                            <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+                <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_loge&#39;</span><span class="p">)</span>
+                <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                        <span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                        <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_loge&#39;</span><span class="p">)</span>
+                    <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                            <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;10&#39;</span><span class="p">:</span>
+                <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_log10&#39;</span><span class="p">)</span>
+                <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+                        <span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                        <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_log10&#39;</span><span class="p">)</span>
+                    <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+                            <span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span>
+                            <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train features shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train feature names shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_train_feature_names</span><span class="p">))</span>
+
+        <span class="n">new_train_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">new_train_feature_names</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New test features shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New test feature names shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_test_feature_names</span><span class="p">))</span>
+
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">new_test_feature_names</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span><span class="o">=</span><span class="n">new_train_features_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span><span class="o">=</span><span class="n">new_test_features_df</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="ratio_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.ratio_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ratio_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Adds every possible ratio feature, replaces divide by zero errors</span>
+<span class="sd">    with np.nan.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.ratio_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding ratio features&#39;</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+        <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_constants&#39;</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">scale_to_range</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_working_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_working_df</span><span class="p">,</span>
+            <span class="n">min_val</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_val</span><span class="o">=</span><span class="mi">10</span>
+        <span class="p">)</span>
+
+        <span class="n">feature_pairs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">permutations</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_pairs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">feature_pairs</span> <span class="o">=</span> <span class="n">choices</span><span class="p">(</span><span class="n">feature_pairs</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Will compute quotients for </span><span class="si">%s</span><span class="s1"> pairs of features&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_pairs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">new_train_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">feature_a</span><span class="p">,</span> <span class="n">feature_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_pairs</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dividing feature pair </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_pairs</span><span class="p">))</span>
+
+            <span class="n">quotient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature_a</span><span class="p">]),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature_b</span><span class="p">]),</span>
+                <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;div_zero_value&#39;</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature_a</span><span class="p">])),</span>
+                <span class="n">where</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature_b</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">)</span>
+
+            <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature_a</span><span class="si">}</span><span class="s1">_over_</span><span class="si">{</span><span class="n">feature_b</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quotient</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">quotient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature_a</span><span class="p">]),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature_b</span><span class="p">]),</span>
+                    <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;div_zero_value&#39;</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature_a</span><span class="p">])),</span>
+                    <span class="n">where</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature_b</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span>
+                <span class="p">)</span>
+
+                <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature_a</span><span class="si">}</span><span class="s1">_over_</span><span class="si">{</span><span class="n">feature_b</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quotient</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train features shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train feature names shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_train_feature_names</span><span class="p">))</span>
+
+        <span class="n">new_train_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">new_train_feature_names</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">new_test_feature_names</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span><span class="o">=</span><span class="n">new_train_features_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span><span class="o">=</span><span class="n">new_test_features_df</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No features to divide&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="exponential_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.exponential_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">exponential_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Adds exponential features with base 2 or base e.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.exponential_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding exponential features&#39;</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+        <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scale_to_range&#39;</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">new_train_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+                <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_exp_base_e&#39;</span><span class="p">)</span>
+                <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">e</span><span class="o">**</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_exp_base_e&#39;</span><span class="p">)</span>
+                    <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">e</span><span class="o">**</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;base&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_exp_base_2&#39;</span><span class="p">)</span>
+                <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="mi">2</span><span class="o">**</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_exp_base_2&#39;</span><span class="p">)</span>
+                    <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="mi">2</span><span class="o">**</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+        <span class="n">new_train_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">new_train_feature_names</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">new_test_feature_names</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span><span class="o">=</span><span class="n">new_train_features_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span><span class="o">=</span><span class="n">new_test_features_df</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="sum_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.sum_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sum_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Adds sum features for variable number of addends.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.sum_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding sum features&#39;</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+        <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scale_to_range&#39;</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_addends&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+            <span class="n">n_addends</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_addends</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_addends&#39;</span><span class="p">]</span>
+
+        <span class="n">new_train_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">addend_sets</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">n_addends</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">addend_sets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">addend_sets</span> <span class="o">=</span> <span class="n">choices</span><span class="p">(</span><span class="n">addend_sets</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Will compute sums for </span><span class="si">%s</span><span class="s1"> sets of </span><span class="si">%s</span><span class="s1"> features&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">addend_sets</span><span class="p">),</span> <span class="n">n_addends</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">addend_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">addend_sets</span><span class="p">):</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding feature set </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">addend_sets</span><span class="p">))</span>
+
+            <span class="n">train_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">addend</span> <span class="ow">in</span> <span class="n">addend_set</span><span class="p">:</span>
+
+                <span class="n">train_sum</span> <span class="o">+=</span> <span class="n">train_working_df</span><span class="p">[</span><span class="n">addend</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+            <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sum_feature_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_sum</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">test_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">addend</span> <span class="ow">in</span> <span class="n">addend_set</span><span class="p">:</span>
+
+                    <span class="n">test_sum</span> <span class="o">+=</span> <span class="n">test_working_df</span><span class="p">[</span><span class="n">addend</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+                <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sum_feature_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_sum</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train features shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train feature names shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_train_feature_names</span><span class="p">))</span>
+
+        <span class="n">new_train_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">new_train_feature_names</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">new_test_feature_names</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span> <span class="o">=</span> <span class="n">new_train_features_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span> <span class="o">=</span> <span class="n">new_test_features_df</span><span class="p">,</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No features to sum&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="difference_features">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.difference_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">difference_features</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Adds difference features for variable number of subtrahends.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.difference_features&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding difference features&#39;</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+        <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;scale_to_range&#39;</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_subtrahends&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">):</span>
+            <span class="n">n_subtrahends</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_subtrahends</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_subtrahends&#39;</span><span class="p">]</span>
+
+        <span class="n">new_train_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">subtrahend_sets</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">n_subtrahends</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subtrahend_sets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">subtrahend_sets</span> <span class="o">=</span> <span class="n">choices</span><span class="p">(</span><span class="n">subtrahend_sets</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Will compute differences for </span><span class="si">%s</span><span class="s1"> sets of </span><span class="si">%s</span><span class="s1"> features&#39;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">subtrahend_sets</span><span class="p">),</span>
+            <span class="n">n_subtrahends</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subtrahend_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subtrahend_sets</span><span class="p">):</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Subtracting feature set </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">subtrahend_sets</span><span class="p">))</span>
+            <span class="n">train_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">subtrahend_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+            <span class="k">for</span> <span class="n">subtrahend</span> <span class="ow">in</span> <span class="n">subtrahend_set</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">train_difference</span> <span class="o">-=</span> <span class="n">train_working_df</span><span class="p">[</span><span class="n">subtrahend</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+            <span class="n">new_train_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subtrahend_set</span><span class="p">))</span>
+            <span class="n">new_train_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_difference</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">test_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">subtrahend_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+                <span class="k">for</span> <span class="n">subtrahend</span> <span class="ow">in</span> <span class="n">subtrahend_set</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="n">test_difference</span> <span class="o">-=</span> <span class="n">test_working_df</span><span class="p">[</span><span class="n">subtrahend</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+                <span class="n">new_test_feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subtrahend_set</span><span class="p">))</span>
+                <span class="n">new_test_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_difference</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train features shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;New train feature names shape: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_train_feature_names</span><span class="p">))</span>
+
+        <span class="n">new_train_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_train_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">new_train_feature_names</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_test_features</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">new_test_feature_names</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_test_features_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span><span class="o">=</span><span class="n">new_train_features_df</span><span class="p">,</span>
+            <span class="n">new_test_features</span><span class="o">=</span><span class="n">new_test_features_df</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No features to subtract&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="kde_smoothing">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.kde_smoothing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kde_smoothing</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">shortcircuit_preprocessing</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Uses kernel density estimation to smooth features.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.kde_smoothing&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding kernel density estimate smoothed features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shortcircuit_preprocessing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+            <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+                <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scale_to_range&#39;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_working_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">new_test_features</span><span class="o">=</span><span class="p">{}</span>
+        <span class="n">new_train_features</span><span class="o">=</span><span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;sample_size&#39;</span><span class="p">]:</span>
+            <span class="n">sample_df</span><span class="o">=</span><span class="n">train_working_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;sample_size&#39;</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sample_df</span><span class="o">=</span><span class="n">train_working_df</span>
+
+        <span class="n">workers</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">scipy_kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span>
+                    <span class="n">sample_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                    <span class="n">bw_method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+                    <span class="n">new_train_features</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_kde&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                        <span class="n">scipy_kde</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">workers</span><span class="p">)</span>
+                    <span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+                        <span class="n">new_test_features</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s1">_kde&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                            <span class="n">scipy_kde</span><span class="p">,</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">workers</span><span class="p">)</span>
+                        <span class="p">))</span>
+
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Typeerror in KDE smoother&#39;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Numpy linear algebra error in gaussian KDE&#39;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Valueerror in KDE smoother&#39;</span><span class="p">)</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span> <span class="o">=</span> <span class="n">new_train_features</span><span class="p">,</span>
+            <span class="n">new_test_features</span> <span class="o">=</span> <span class="n">new_test_features</span><span class="p">,</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="kbins_quantization">
+<a class="viewcode-back" href="../../api.html#ensembleset.feature_methods.kbins_quantization">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kbins_quantization</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">test_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">shortcircuit_preprocessing</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Discretizes feature with Kbins quantization.&#39;&#39;&#39;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.kbins_quantization&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding k-bins quantized features&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shortcircuit_preprocessing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">features</span><span class="p">,</span> <span class="n">train_working_df</span><span class="p">,</span> <span class="n">test_working_df</span><span class="o">=</span><span class="n">preprocess_features</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+            <span class="n">preprocessing_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="s1">&#39;exclude_string_features&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enforce_floats&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_inf&#39;</span><span class="p">,</span> 
+                <span class="s1">&#39;remove_large_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_small_nums&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;knn_impute&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;remove_constants&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scale_to_range&#39;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_working_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_working_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">new_train_features</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">new_test_features</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+
+            <span class="n">kbins</span> <span class="o">=</span> <span class="n">KBinsDiscretizer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">binned_feature</span> <span class="o">=</span> <span class="n">kbins</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                <span class="n">binned_feature_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">kbins</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span><span class="si">}</span><span class="s1">_bins&#39;</span>
+                <span class="n">new_train_features</span><span class="p">[</span><span class="n">binned_feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">binned_feature</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">binned_feature</span> <span class="o">=</span> <span class="n">kbins</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_working_df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+                    <span class="n">new_test_features</span><span class="p">[</span><span class="n">binned_feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">binned_feature</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Caught ValueError in KbinsDiscretizer&#39;</span><span class="p">)</span>
+
+        <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">add_new_features</span><span class="p">(</span>
+            <span class="n">new_train_features</span> <span class="o">=</span> <span class="n">new_train_features</span><span class="p">,</span>
+            <span class="n">new_test_features</span> <span class="o">=</span> <span class="n">new_test_features</span><span class="p">,</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ensembleset.dataset &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d996134c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../feature_catalog.html">Feature Engineering Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ensembleset.dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ensembleset.dataset</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Generates variations of a dataset using a pool of feature engineering techniques.</span>
+
+<span class="sd">This module provides the DataSet class for generating ensemble datasets through</span>
+<span class="sd">randomized application of feature engineering methods. Each generated dataset</span>
+<span class="sd">applies a different sequence of feature engineering techniques to randomly</span>
+<span class="sd">selected subsets of features, enabling training of diverse ensemble models.</span>
+
+<span class="sd">The feature engineering pipeline includes methods such as polynomial features,</span>
+<span class="sd">splines, logarithmic transformations, ratios, exponentials, sums, differences,</span>
+<span class="sd">Gaussian KDE smoothing, and binning. String features can be encoded using</span>
+<span class="sd">one-hot or ordinal encoding.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">&gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">&gt;&gt;&gt; import ensembleset.dataset as ds</span>
+<span class="sd">&gt;&gt;&gt; </span>
+<span class="sd">&gt;&gt;&gt; # Create sample data</span>
+<span class="sd">&gt;&gt;&gt; train_df = pd.DataFrame({&#39;feature1&#39;: [1, 2, 3], &#39;label&#39;: [0, 1, 0]})</span>
+<span class="sd">&gt;&gt;&gt; test_df = pd.DataFrame({&#39;feature1&#39;: [4, 5], &#39;label&#39;: [1, 0]})</span>
+<span class="sd">&gt;&gt;&gt; </span>
+<span class="sd">&gt;&gt;&gt; # Initialize DataSet</span>
+<span class="sd">&gt;&gt;&gt; data_ensemble = ds.DataSet(</span>
+<span class="sd">...     label=&#39;label&#39;,</span>
+<span class="sd">...     train_data=train_df,</span>
+<span class="sd">...     test_data=test_df,</span>
+<span class="sd">...     data_directory=&#39;./data&#39;</span>
+<span class="sd">... )</span>
+<span class="sd">&gt;&gt;&gt; </span>
+<span class="sd">&gt;&gt;&gt; # Generate 10 ensemble datasets</span>
+<span class="sd">&gt;&gt;&gt; data_ensemble.make_datasets(n_datasets=10, frac_features=0.1, n_steps=5)</span>
+
+<span class="sd">See Also</span>
+<span class="sd">--------</span>
+<span class="sd">ensembleset.feature_methods : Feature engineering function implementations</span>
+<span class="sd">ensembleset.preprocessing_methods : Data preprocessing utilities</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span> <span class="n">cpu_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">choice</span><span class="p">,</span> <span class="n">shuffle</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.feature_engineerings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">engineerings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.feature_methods</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fm</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataSet">
+<a class="viewcode-back" href="../../api.html#ensembleset.dataset.DataSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataset ensemble generator using randomized feature engineering.</span>
+<span class="sd">    </span>
+<span class="sd">    This class generates multiple dataset variations by applying randomized</span>
+<span class="sd">    sequences of feature engineering methods to randomized subsets of input</span>
+<span class="sd">    features. Each dataset in the ensemble undergoes a unique transformation</span>
+<span class="sd">    pipeline, making it suitable for training diverse ensemble models.</span>
+<span class="sd">    </span>
+<span class="sd">    The class handles both training and testing data with minimal data leakage</span>
+<span class="sd">    by fitting transformations on training data and applying them to both</span>
+<span class="sd">    training and testing sets. Generated datasets are saved to HDF5 format</span>
+<span class="sd">    for efficient storage and retrieval.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Name of the label column in the training and testing DataFrames.</span>
+<span class="sd">        This column will be extracted and stored separately from the features.</span>
+<span class="sd">    train_data : pd.DataFrame</span>
+<span class="sd">        Training dataset containing both features and the label column.</span>
+<span class="sd">        Must include the column specified by `label` parameter.</span>
+<span class="sd">    test_data : pd.DataFrame, optional</span>
+<span class="sd">        Testing dataset containing both features and the label column.</span>
+<span class="sd">        If provided, transformations fitted on training data will be</span>
+<span class="sd">        applied to this data. Default is None.</span>
+<span class="sd">    string_features : list of str, optional</span>
+<span class="sd">        List of column names containing string/categorical features that</span>
+<span class="sd">        require encoding (one-hot or ordinal) before numerical feature</span>
+<span class="sd">        engineering. Default is None.</span>
+<span class="sd">    data_directory : str, optional</span>
+<span class="sd">        Path to directory where generated ensemble datasets will be saved</span>
+<span class="sd">        in HDF5 format. Directory will be created if it doesn&#39;t exist.</span>
+<span class="sd">        Default is &#39;ensembleset_data&#39;.</span>
+<span class="sd">    ensembleset_base_name : str, optional</span>
+<span class="sd">        Base name for the output HDF5 file. The file will be named</span>
+<span class="sd">        &#39;{ensembleset_base_name}.h5&#39;. Default is &#39;ensembleset&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Name of the label column.</span>
+<span class="sd">    train_data : pd.DataFrame</span>
+<span class="sd">        Training features (without label column).</span>
+<span class="sd">    test_data : pd.DataFrame or None</span>
+<span class="sd">        Testing features (without label column).</span>
+<span class="sd">    train_labels : np.ndarray</span>
+<span class="sd">        Training labels extracted from train_data.</span>
+<span class="sd">    test_labels : np.ndarray or None</span>
+<span class="sd">        Testing labels extracted from test_data.</span>
+<span class="sd">    string_features : list of str or None</span>
+<span class="sd">        List of string feature column names.</span>
+<span class="sd">    data_directory : str</span>
+<span class="sd">        Path to output directory.</span>
+<span class="sd">    ensembleset_base_name : str</span>
+<span class="sd">        Base name for output files.</span>
+<span class="sd">    string_encodings : dict</span>
+<span class="sd">        Dictionary of available string encoding methods.</span>
+<span class="sd">    numerical_methods : dict</span>
+<span class="sd">        Dictionary of available numerical feature engineering methods.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import ensembleset.dataset as ds</span>
+<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt; # Create sample training and testing data</span>
+<span class="sd">    &gt;&gt;&gt; train_df = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;num_feature1&#39;: [1.0, 2.0, 3.0, 4.0],</span>
+<span class="sd">    ...     &#39;num_feature2&#39;: [10.0, 20.0, 30.0, 40.0],</span>
+<span class="sd">    ...     &#39;cat_feature&#39;: [&#39;A&#39;, &#39;B&#39;, &#39;A&#39;, &#39;B&#39;],</span>
+<span class="sd">    ...     &#39;target&#39;: [0, 1, 0, 1]</span>
+<span class="sd">    ... })</span>
+<span class="sd">    &gt;&gt;&gt; test_df = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;num_feature1&#39;: [5.0, 6.0],</span>
+<span class="sd">    ...     &#39;num_feature2&#39;: [50.0, 60.0],</span>
+<span class="sd">    ...     &#39;cat_feature&#39;: [&#39;A&#39;, &#39;B&#39;],</span>
+<span class="sd">    ...     &#39;target&#39;: [1, 0]</span>
+<span class="sd">    ... })</span>
+<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt; # Initialize DataSet with string feature specification</span>
+<span class="sd">    &gt;&gt;&gt; ensemble = ds.DataSet(</span>
+<span class="sd">    ...     label=&#39;target&#39;,</span>
+<span class="sd">    ...     train_data=train_df,</span>
+<span class="sd">    ...     test_data=test_df,</span>
+<span class="sd">    ...     string_features=[&#39;cat_feature&#39;],</span>
+<span class="sd">    ...     data_directory=&#39;./ensemble_output&#39;,</span>
+<span class="sd">    ...     ensembleset_base_name=&#39;my_ensemble&#39;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt; # Generate 5 datasets with 3 feature engineering steps each,</span>
+<span class="sd">    &gt;&gt;&gt; # using 20% of features per step</span>
+<span class="sd">    &gt;&gt;&gt; output_file = ensemble.make_datasets(</span>
+<span class="sd">    ...     n_datasets=5,</span>
+<span class="sd">    ...     frac_features=0.2,</span>
+<span class="sd">    ...     n_steps=3</span>
+<span class="sd">    ... )</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Label columns are automatically removed from feature DataFrames and</span>
+<span class="sd">      stored separately as numpy arrays.</span>
+<span class="sd">    - String features are encoded before numerical transformations are applied.</span>
+<span class="sd">    - All transformations are fitted on training data only to prevent data</span>
+<span class="sd">      leakage, even when test data is provided.</span>
+<span class="sd">    - Generated datasets are saved in HDF5 format with the structure:</span>
+<span class="sd">      dataset.h5/train/labels, dataset.h5/train/dataset_N,</span>
+<span class="sd">      dataset.h5/test/labels, dataset.h5/test/dataset_N</span>
+<span class="sd">    - Uses multiprocessing for parallel dataset generation.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    make_datasets : Generate ensemble datasets with specified parameters</span>
+<span class="sd">    ensembleset.feature_engineerings : Configuration of available methods</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DataSet.__init__">
+<a class="viewcode-back" href="../../api.html#ensembleset.dataset.DataSet.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">train_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">test_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">string_features</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">data_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ensembleset_data&#39;</span><span class="p">,</span>
+            <span class="n">ensembleset_base_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ensembleset&#39;</span>
+        <span class="p">):</span>
+
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+        <span class="c1"># Check user argument types</span>
+        <span class="n">type_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_argument_types</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">train_data</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span>
+            <span class="n">test_data</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+            <span class="n">string_features</span><span class="o">=</span><span class="n">string_features</span><span class="p">,</span>
+            <span class="n">data_directory</span><span class="o">=</span><span class="n">data_directory</span><span class="p">,</span>
+            <span class="n">ensembleset_base_name</span><span class="o">=</span><span class="n">ensembleset_base_name</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If the type check passed, assign arguments to attributes</span>
+        <span class="k">if</span> <span class="n">type_check</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">train_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="o">=</span> <span class="n">test_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">string_features</span> <span class="o">=</span> <span class="n">string_features</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span> <span class="o">=</span> <span class="n">data_directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ensembleset_base_name</span> <span class="o">=</span> <span class="n">ensembleset_base_name</span>
+
+        <span class="c1"># Create the HDF5 output</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Could not create output directory: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">OSError</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training label: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Training data: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Testing data: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;String features: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">string_features</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data directory: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ensembleset basename: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembleset_base_name</span><span class="p">)</span>
+
+        <span class="c1"># Enforce string type on DataFrame columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="c1"># Retrieve and assign the training labels, set NAN if they don&#39;t exist</span>
+        <span class="c1"># then remove them from the training data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_labels</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="p">)</span>
+
+        <span class="c1"># Retrieve and assign the testing labels, set NAN if they don&#39;t exist</span>
+        <span class="c1"># then remove them from the training data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_labels</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_labels</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Define the feature engineering pipeline methods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">string_encodings</span><span class="o">=</span><span class="n">engineerings</span><span class="o">.</span><span class="n">STRING_ENCODINGS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_methods</span><span class="o">=</span><span class="n">engineerings</span><span class="o">.</span><span class="n">NUMERICAL_METHODS</span></div>
+
+
+
+<div class="viewcode-block" id="DataSet.make_datasets">
+<a class="viewcode-back" href="../../api.html#ensembleset.dataset.DataSet.make_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_datasets</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">n_datasets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">frac_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate ensemble datasets using randomized feature engineering pipelines.</span>
+<span class="sd">        </span>
+<span class="sd">        Creates multiple dataset variations by applying randomized sequences of</span>
+<span class="sd">        feature engineering methods to randomly selected subsets of features.</span>
+<span class="sd">        Each dataset undergoes a unique transformation pipeline, with feature</span>
+<span class="sd">        selection re-randomized at each engineering step.</span>
+<span class="sd">        </span>
+<span class="sd">        The method uses multiprocessing to generate datasets in parallel, with</span>
+<span class="sd">        the number of worker processes equal to half the available CPU cores.</span>
+<span class="sd">        All generated datasets are saved to an HDF5 file in the specified</span>
+<span class="sd">        data directory.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_datasets : int</span>
+<span class="sd">            Number of dataset variations to generate. Each dataset will have</span>
+<span class="sd">            a unique sequence of feature engineering transformations applied.</span>
+<span class="sd">            Must be a positive integer.</span>
+<span class="sd">        frac_features : float</span>
+<span class="sd">            Fraction of features to randomly select for each feature engineering</span>
+<span class="sd">            step. Must be between 0 and 1. For example, 0.1 means 10% of</span>
+<span class="sd">            available features are selected at each step. The selection is</span>
+<span class="sd">            re-randomized for each step in the pipeline.</span>
+<span class="sd">        n_steps : int</span>
+<span class="sd">            Number of feature engineering steps to apply in sequence for each</span>
+<span class="sd">            dataset. Each step randomly selects a method from the available</span>
+<span class="sd">            feature engineering techniques. Must be a positive integer.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Path to the generated HDF5 file containing all ensemble datasets.</span>
+<span class="sd">            The file structure is:</span>
+<span class="sd">            - train/labels: Training labels (np.ndarray)</span>
+<span class="sd">            - train/dataset_0, train/dataset_1, ...: Training feature sets</span>
+<span class="sd">            - test/labels: Testing labels (np.ndarray, if test_data provided)</span>
+<span class="sd">            - test/dataset_0, test/dataset_1, ...: Testing feature sets</span>
+<span class="sd">        </span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import ensembleset.dataset as ds</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Create sample data</span>
+<span class="sd">        &gt;&gt;&gt; train_df = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;feature1&#39;: [1, 2, 3, 4, 5],</span>
+<span class="sd">        ...     &#39;feature2&#39;: [10, 20, 30, 40, 50],</span>
+<span class="sd">        ...     &#39;feature3&#39;: [100, 200, 300, 400, 500],</span>
+<span class="sd">        ...     &#39;label&#39;: [0, 1, 0, 1, 0]</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Initialize ensemble</span>
+<span class="sd">        &gt;&gt;&gt; ensemble = ds.DataSet(</span>
+<span class="sd">        ...     label=&#39;label&#39;,</span>
+<span class="sd">        ...     train_data=train_df,</span>
+<span class="sd">        ...     data_directory=&#39;./output&#39;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Generate 10 datasets, using 20% of features per step,</span>
+<span class="sd">        &gt;&gt;&gt; # with 5 engineering steps each</span>
+<span class="sd">        &gt;&gt;&gt; output_file = ensemble.make_datasets(</span>
+<span class="sd">        ...     n_datasets=10,</span>
+<span class="sd">        ...     frac_features=0.2,</span>
+<span class="sd">        ...     n_steps=5</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Datasets saved to: {output_file}&quot;)</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; # With test data included</span>
+<span class="sd">        &gt;&gt;&gt; test_df = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;feature1&#39;: [6, 7],</span>
+<span class="sd">        ...     &#39;feature2&#39;: [60, 70],</span>
+<span class="sd">        ...     &#39;feature3&#39;: [600, 700],</span>
+<span class="sd">        ...     &#39;label&#39;: [1, 0]</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; ensemble_with_test = ds.DataSet(</span>
+<span class="sd">        ...     label=&#39;label&#39;,</span>
+<span class="sd">        ...     train_data=train_df,</span>
+<span class="sd">        ...     test_data=test_df</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; output_file = ensemble_with_test.make_datasets(</span>
+<span class="sd">        ...     n_datasets=5,</span>
+<span class="sd">        ...     frac_features=0.3,</span>
+<span class="sd">        ...     n_steps=3</span>
+<span class="sd">        ... )</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Each dataset has a unique random sequence of feature engineering methods</span>
+<span class="sd">        - Feature selection is re-randomized after each engineering step</span>
+<span class="sd">        - At least 1 feature is always selected, even if frac_features * n_features &lt; 1</span>
+<span class="sd">        - String features are encoded first (if specified), then numerical methods</span>
+<span class="sd">          are applied</span>
+<span class="sd">        - All transformations are fitted on training data only to prevent leakage</span>
+<span class="sd">        - When test_data is provided, fitted transformations are applied to both</span>
+<span class="sd">          training and testing data</span>
+<span class="sd">        - Uses multiprocessing with worker count = cpu_count() // 2</span>
+<span class="sd">        - Progress and debugging information is logged during execution</span>
+<span class="sd">        </span>
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ensembleset.feature_methods : Individual feature engineering functions</span>
+<span class="sd">        ensembleset.preprocessing_methods : Data preprocessing utilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.make_datasets&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Will make </span><span class="si">%s</span><span class="s1"> datasets&#39;</span><span class="p">,</span> <span class="n">n_datasets</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Running </span><span class="si">%s</span><span class="s1"> feature engineering steps per dataset&#39;</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Selecting </span><span class="si">%s</span><span class="s1"> percent of features for each step&#39;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">frac_features</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
+        <span class="n">ensembleset_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_output</span><span class="p">(</span><span class="n">n_datasets</span><span class="p">,</span> <span class="n">frac_features</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">)</span>
+
+        <span class="c1"># Start multiprocessing manager and create queues for I/O to dataset worker</span>
+        <span class="c1"># and logging from workers</span>
+        <span class="n">manager</span><span class="o">=</span><span class="n">Manager</span><span class="p">()</span>
+        <span class="n">input_queue</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="n">output_queue</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="n">logging_queue</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># Create dataset worker processes</span>
+        <span class="n">dataset_worker_processes</span><span class="o">=</span><span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">worker_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">dataset_worker_processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Process</span><span class="p">(</span>
+                    <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_worker</span><span class="p">,</span>
+                    <span class="n">args</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">worker_num</span><span class="p">,</span>
+                        <span class="n">input_queue</span><span class="p">,</span>
+                        <span class="n">output_queue</span><span class="p">,</span>
+                        <span class="n">logging_queue</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">worker_num</span><span class="p">,</span> <span class="n">dataset_worker_process</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset_worker_processes</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Starting dataset worker </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">worker_num</span><span class="p">)</span>
+            <span class="n">dataset_worker_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c1"># Create output worker process</span>
+        <span class="n">output_worker_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_worker</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">ensembleset_file</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">dataset_worker_processes</span><span class="p">),</span>
+                <span class="n">output_queue</span><span class="p">,</span>
+                <span class="n">logging_queue</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">output_worker_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c1"># Create worker logging process</span>
+        <span class="n">worker_logging_process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span>
+            <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logging_worker</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_worker_processes</span><span class="p">),</span> <span class="n">logging_queue</span><span class="p">,)</span>
+        <span class="p">)</span>
+
+        <span class="n">worker_logging_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c1"># Add workunits to the queue</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_datasets</span><span class="p">):</span>
+            <span class="n">input_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+                    <span class="s1">&#39;frac_features&#39;</span><span class="p">:</span> <span class="n">frac_features</span><span class="p">,</span>
+                    <span class="s1">&#39;n_steps&#39;</span><span class="p">:</span> <span class="n">n_steps</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Send done signals</span>
+        <span class="k">for</span> <span class="n">dataset_worker_process</span> <span class="ow">in</span> <span class="n">dataset_worker_processes</span><span class="p">:</span>
+            <span class="n">input_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="s1">&#39;done&#39;</span><span class="p">})</span>
+
+        <span class="c1"># Join and close workers</span>
+        <span class="k">for</span> <span class="n">dataset_worker_process</span> <span class="ow">in</span> <span class="n">dataset_worker_processes</span><span class="p">:</span>
+            <span class="n">dataset_worker_process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="n">dataset_worker_process</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">output_worker_process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">output_worker_process</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">worker_logging_process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">worker_logging_process</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">ensembleset_file</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dataset_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">worker_num</span><span class="p">,</span> <span class="n">input_queue</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">,</span> <span class="n">logging_queue</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Worker process to generate datasets for a given ensemble.&#39;&#39;&#39;</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">workunit</span> <span class="o">=</span> <span class="n">input_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">dataset</span> <span class="o">==</span> <span class="s1">&#39;done&#39;</span><span class="p">:</span>
+                <span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="s1">&#39;done&#39;</span><span class="p">})</span>
+                <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="s1">&#39;done&#39;</span><span class="p">})</span>
+                <span class="k">return</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">frac_features</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;frac_features&#39;</span><span class="p">]</span>
+                <span class="n">n_steps</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;n_steps&#39;</span><span class="p">]</span>
+
+            <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Input training data shape: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">})</span>
+
+            <span class="c1"># Take a copy of the training and test data and sample if desired</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">test_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                    <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Input testing data shape: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">test_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">})</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">test_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Generate a data pipeline</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data_pipeline</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span>
+
+            <span class="c1"># Set input n features for first round</span>
+            <span class="n">input_n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span> <span class="o">*</span> <span class="n">frac_features</span><span class="p">)</span>
+            <span class="n">input_n_features</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">input_n_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># Loop on and apply each method in the pipeline</span>
+            <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">arguments</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">fm</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">string_encodings</span><span class="p">:</span>
+
+                    <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                        <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Applying </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">string_features</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">})</span>
+
+                    <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span>
+                        <span class="n">train_df</span><span class="p">,</span>
+                        <span class="n">test_df</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">string_features</span><span class="p">,</span>
+                        <span class="n">arguments</span>
+                    <span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span> <span class="o">*</span> <span class="n">frac_features</span><span class="p">)</span>
+                    <span class="n">n_features</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">n_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="n">n_features</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">n_features</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">input_n_features</span><span class="p">])</span>
+                    <span class="n">input_n_features</span> <span class="o">=</span> <span class="n">n_features</span>
+
+                    <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_features</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+
+                    <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                        <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Applying </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="si">}</span><span class="s1"> features&#39;</span>
+                    <span class="p">})</span>
+
+                    <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span>
+                        <span class="n">train_df</span><span class="p">,</span>
+                        <span class="n">test_df</span><span class="p">,</span>
+                        <span class="n">features</span><span class="p">,</span>
+                        <span class="n">arguments</span>
+                    <span class="p">)</span>
+
+                    <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                        <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;New training data shape: </span><span class="si">{</span><span class="n">train_df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">})</span>
+
+                    <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                            <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;New testing data shape: </span><span class="si">{</span><span class="n">test_df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="p">})</span>
+
+            <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Final training data shape: </span><span class="si">{</span><span class="n">train_df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">})</span>
+
+            <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                    <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">worker_num</span><span class="p">),</span>
+                    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Final testing data shape: </span><span class="si">{</span><span class="n">test_df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">})</span>
+
+            <span class="n">output_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="n">worker_num</span><span class="p">,</span>
+                <span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">,</span>
+                <span class="s1">&#39;train_df&#39;</span><span class="p">:</span> <span class="n">train_df</span><span class="p">,</span>
+                <span class="s1">&#39;test_df&#39;</span><span class="p">:</span> <span class="n">test_df</span>
+            <span class="p">})</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_output_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ensembleset_file</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">output_queue</span><span class="p">,</span> <span class="n">logging_queue</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Worker process to collect completed datasets and write them to HDF5.&#39;&#39;&#39;</span>
+
+        <span class="n">done_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">train_df</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">test_df</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">workunit</span> <span class="o">=</span> <span class="n">output_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">worker</span> <span class="o">==</span> <span class="s1">&#39;done&#39;</span><span class="p">:</span>
+                <span class="n">done_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">done_count</span> <span class="o">==</span> <span class="n">n_workers</span><span class="p">:</span>
+                    <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="s1">&#39;done&#39;</span><span class="p">})</span>
+
+                    <span class="k">return</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span>
+                <span class="n">train_df</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;train_df&#39;</span><span class="p">]</span>
+                <span class="n">test_df</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;test_df&#39;</span><span class="p">]</span>
+
+                <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">ensembleset_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf</span><span class="p">:</span>
+
+                    <span class="c1"># Save the results to HDF5 output</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;train/</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">test_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;test/</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_df</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                        <span class="p">)</span>
+
+                <span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                    <span class="s1">&#39;worker&#39;</span><span class="p">:</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Saved dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1"> from worker </span><span class="si">{</span><span class="n">worker</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">})</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_logging_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">logging_queue</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Worker process to log messages from dataset and output workers.&#39;&#39;&#39;</span>
+
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.dataset_worker&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+        <span class="n">done_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">workunit</span> <span class="o">=</span> <span class="n">logging_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">worker</span> <span class="o">==</span> <span class="s1">&#39;done&#39;</span><span class="p">:</span>
+                <span class="n">done_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">done_count</span> <span class="o">==</span> <span class="n">n_workers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">level</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;level&#39;</span><span class="p">]</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;info&#39;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;debug&#39;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;warning&#39;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_select_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_features</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">data_df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Selects a random subset of features.&#39;&#39;&#39;</span>
+
+        <span class="n">features</span> <span class="o">=</span> <span class="n">data_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[:</span><span class="n">n_features</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">features</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_data_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Generates one random sequence of feature engineering operations. Starts with</span>
+<span class="sd">        a string encoding method if we have string features.&#39;&#39;&#39;</span>
+
+        <span class="n">pipeline</span><span class="o">=</span><span class="p">{}</span>
+
+        <span class="c1"># Choose a string encoding method, if needed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">string_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string_encodings</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">pipeline</span><span class="p">[</span><span class="n">selection</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">string_encodings</span><span class="p">[</span><span class="n">selection</span><span class="p">]</span>
+
+        <span class="c1"># Construct a random sequence of numerical feature engineering methods</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[:</span><span class="n">n_steps</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+
+            <span class="n">pipeline</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">value</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+                <span class="n">pipeline</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">pipeline</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_argument_types</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">train_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">test_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">string_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+            <span class="n">data_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">ensembleset_base_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Checks user argument types, returns true or false for all passing.&#39;&#39;&#39;</span>
+
+        <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Label is not a string.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Train data is not a Pandas DataFrame.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">or</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Test data is not a Pandas DataFrame.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string_features</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="n">string_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;String features is not a list.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_directory</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Data directory is not a string.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ensembleset_base_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">check_pass</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Ensembleset base name is not a string.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">check_pass</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_datasets</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">frac_features</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Creates HDF5 output sink for ensembleset.&#39;&#39;&#39;</span>
+
+        <span class="c1"># Create groups for training and testing datasets</span>
+        <span class="n">ensembleset_file</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ensembleset_base_name</span><span class="si">}</span><span class="s1">-&#39;</span> <span class="o">+</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">n_datasets</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">frac_features</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s1">.h5&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">ensembleset_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf</span><span class="p">:</span>
+
+            <span class="c1"># Create groups for train and test datasets</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add the training and testing labels</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_directory</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">ensembleset_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdf</span><span class="p">:</span>
+
+            <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;train/labels&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_labels</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">hdf</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;test/labels&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_labels</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ensembleset_file</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

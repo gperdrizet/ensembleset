@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start Guide &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d996134c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#with-test-data">With Test Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#with-string-features">With String Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-parameters">Understanding Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-format">Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reading-generated-datasets">Reading Generated Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_catalog.html">Feature Engineering Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading"></a></h1>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<p>Here’s a simple example to get started with EnsembleSet:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.dataset</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ds</span>
+
+<span class="c1"># Create or load your training data</span>
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;feature1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+    <span class="s1">&#39;feature2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">],</span>
+    <span class="s1">&#39;feature3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">],</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="c1"># Initialize the DataSet</span>
+<span class="n">data_ensemble</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">,</span>
+    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+    <span class="n">data_directory</span><span class="o">=</span><span class="s1">&#39;./ensemble_output&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate ensemble datasets</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">data_ensemble</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>         <span class="c1"># Generate 10 different datasets</span>
+    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>     <span class="c1"># Use 10% of features per step</span>
+    <span class="n">n_steps</span><span class="o">=</span><span class="mi">5</span>              <span class="c1"># Apply 5 engineering steps per dataset</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Datasets saved to: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="with-test-data">
+<h2>With Test Data<a class="headerlink" href="#with-test-data" title="Link to this heading"></a></h2>
+<p>Include test data to generate aligned training and testing datasets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.dataset</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ds</span>
+
+<span class="c1"># Initialize with both training and testing data</span>
+<span class="n">data_ensemble</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;label_column_name&#39;</span><span class="p">,</span>
+    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+    <span class="n">test_data</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+    <span class="n">data_directory</span><span class="o">=</span><span class="s1">&#39;./ensemble_output&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate ensemble datasets</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">data_ensemble</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The same feature engineering pipeline applied to training data will be applied to testing data, with all transformations fitted on training data only to prevent data leakage.</p>
+</section>
+<section id="with-string-features">
+<h2>With String Features<a class="headerlink" href="#with-string-features" title="Link to this heading"></a></h2>
+<p>Specify categorical string features that need encoding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.dataset</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ds</span>
+
+<span class="c1"># Initialize with string features specified</span>
+<span class="n">data_ensemble</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
+    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+    <span class="n">test_data</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+    <span class="n">string_features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;category_col&#39;</span><span class="p">,</span> <span class="s1">&#39;group_col&#39;</span><span class="p">],</span>
+    <span class="n">data_directory</span><span class="o">=</span><span class="s1">&#39;./ensemble_output&#39;</span><span class="p">,</span>
+    <span class="n">ensembleset_base_name</span><span class="o">=</span><span class="s1">&#39;my_ensemble&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate ensemble datasets</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">data_ensemble</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>String features will be encoded using either one-hot or ordinal encoding before numerical feature engineering methods are applied.</p>
+</section>
+<section id="understanding-parameters">
+<h2>Understanding Parameters<a class="headerlink" href="#understanding-parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">n_datasets</span></code></dt><dd><p>Number of dataset variations to generate. Each will have a unique random sequence of feature engineering methods applied.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">frac_features</span></code></dt><dd><p>Fraction of features (0.0 to 1.0) to randomly select for each feature engineering step. For example, 0.1 means 10% of available features. The selection is re-randomized for each step.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_steps</span></code></dt><dd><p>Number of feature engineering steps to apply in sequence for each dataset. Each step randomly selects a method from the available techniques.</p>
+</dd>
+</dl>
+</section>
+<section id="output-format">
+<h2>Output Format<a class="headerlink" href="#output-format" title="Link to this heading"></a></h2>
+<p>Generated datasets are saved to HDF5 format with the following structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ensembleset.h5
+├── train
+│   ├── labels          # Training labels array
+│   ├── dataset_0       # First training dataset
+│   ├── dataset_1       # Second training dataset
+│   └── ...
+└── test
+    ├── labels          # Testing labels array
+    ├── dataset_0       # First testing dataset
+    ├── dataset_1       # Second testing dataset
+    └── ...
+</pre></div>
+</div>
+</section>
+<section id="reading-generated-datasets">
+<h2>Reading Generated Datasets<a class="headerlink" href="#reading-generated-datasets" title="Link to this heading"></a></h2>
+<p>Load datasets from the HDF5 file using h5py:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s1">&#39;ensemble_output/ensembleset.h5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="c1"># Load training data for first dataset</span>
+    <span class="n">train_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;train/labels&#39;</span><span class="p">])</span>
+    <span class="n">train_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;train/dataset_0&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Load testing data for first dataset</span>
+    <span class="n">test_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;test/labels&#39;</span><span class="p">])</span>
+    <span class="n">test_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;test/dataset_0&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>See <a class="reference internal" href="api.html"><span class="doc">API Reference</span></a> for detailed API documentation</p></li>
+<li><p>See <a class="reference internal" href="feature_catalog.html"><span class="doc">Feature Engineering Catalog</span></a> for descriptions of all feature engineering methods</p></li>
+<li><p>See <a class="reference internal" href="configuration.html"><span class="doc">Configuration</span></a> for configuration options</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

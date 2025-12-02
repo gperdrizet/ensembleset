@@ -1,0 +1,978 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d996134c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="Quick Start Guide" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-class">DataSet Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.dataset.DataSet"><code class="docutils literal notranslate"><span class="pre">DataSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.label"><code class="docutils literal notranslate"><span class="pre">DataSet.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.train_data"><code class="docutils literal notranslate"><span class="pre">DataSet.train_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.test_data"><code class="docutils literal notranslate"><span class="pre">DataSet.test_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.train_labels"><code class="docutils literal notranslate"><span class="pre">DataSet.train_labels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.test_labels"><code class="docutils literal notranslate"><span class="pre">DataSet.test_labels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.string_features"><code class="docutils literal notranslate"><span class="pre">DataSet.string_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.data_directory"><code class="docutils literal notranslate"><span class="pre">DataSet.data_directory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.ensembleset_base_name"><code class="docutils literal notranslate"><span class="pre">DataSet.ensembleset_base_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.string_encodings"><code class="docutils literal notranslate"><span class="pre">DataSet.string_encodings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.numerical_methods"><code class="docutils literal notranslate"><span class="pre">DataSet.numerical_methods</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.__init__"><code class="docutils literal notranslate"><span class="pre">DataSet.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensembleset.dataset.DataSet.make_datasets"><code class="docutils literal notranslate"><span class="pre">DataSet.make_datasets()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ensembleset.feature_methods">Feature Engineering Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.onehot_encoding"><code class="docutils literal notranslate"><span class="pre">onehot_encoding()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.ordinal_encoding"><code class="docutils literal notranslate"><span class="pre">ordinal_encoding()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.poly_features"><code class="docutils literal notranslate"><span class="pre">poly_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.spline_features"><code class="docutils literal notranslate"><span class="pre">spline_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.log_features"><code class="docutils literal notranslate"><span class="pre">log_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.ratio_features"><code class="docutils literal notranslate"><span class="pre">ratio_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.exponential_features"><code class="docutils literal notranslate"><span class="pre">exponential_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.sum_features"><code class="docutils literal notranslate"><span class="pre">sum_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.difference_features"><code class="docutils literal notranslate"><span class="pre">difference_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.kde_smoothing"><code class="docutils literal notranslate"><span class="pre">kde_smoothing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_methods.kbins_quantization"><code class="docutils literal notranslate"><span class="pre">kbins_quantization()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ensembleset.preprocessing_methods">Preprocessing Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.preprocess_features"><code class="docutils literal notranslate"><span class="pre">preprocess_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.exclude_string_features"><code class="docutils literal notranslate"><span class="pre">exclude_string_features()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.enforce_floats"><code class="docutils literal notranslate"><span class="pre">enforce_floats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.remove_inf"><code class="docutils literal notranslate"><span class="pre">remove_inf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.remove_large_nums"><code class="docutils literal notranslate"><span class="pre">remove_large_nums()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.remove_small_nums"><code class="docutils literal notranslate"><span class="pre">remove_small_nums()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.knn_impute"><code class="docutils literal notranslate"><span class="pre">knn_impute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.remove_constants"><code class="docutils literal notranslate"><span class="pre">remove_constants()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.scale_to_range"><code class="docutils literal notranslate"><span class="pre">scale_to_range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.preprocessing_methods.add_new_features"><code class="docutils literal notranslate"><span class="pre">add_new_features()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_catalog.html">Feature Engineering Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<p>This page provides detailed API documentation for EnsembleSet.</p>
+<section id="dataset-class">
+<h2>DataSet Class<a class="headerlink" href="#dataset-class" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ensembleset.dataset.</span></span><span class="sig-name descname"><span class="pre">DataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ensembleset_data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensembleset_base_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ensembleset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/dataset.html#DataSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.dataset.DataSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Dataset ensemble generator using randomized feature engineering.</p>
+<p>This class generates multiple dataset variations by applying randomized
+sequences of feature engineering methods to randomized subsets of input
+features. Each dataset in the ensemble undergoes a unique transformation
+pipeline, making it suitable for training diverse ensemble models.</p>
+<p>The class handles both training and testing data with minimal data leakage
+by fitting transformations on training data and applying them to both
+training and testing sets. Generated datasets are saved to HDF5 format
+for efficient storage and retrieval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the label column in the training and testing DataFrames.
+This column will be extracted and stored separately from the features.</p></li>
+<li><p><strong>train_data</strong> (<em>pd.DataFrame</em>) – Training dataset containing both features and the label column.
+Must include the column specified by <cite>label</cite> parameter.</p></li>
+<li><p><strong>test_data</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – Testing dataset containing both features and the label column.
+If provided, transformations fitted on training data will be
+applied to this data. Default is None.</p></li>
+<li><p><strong>string_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – List of column names containing string/categorical features that
+require encoding (one-hot or ordinal) before numerical feature
+engineering. Default is None.</p></li>
+<li><p><strong>data_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory where generated ensemble datasets will be saved
+in HDF5 format. Directory will be created if it doesn’t exist.
+Default is ‘ensembleset_data’.</p></li>
+<li><p><strong>ensembleset_base_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Base name for the output HDF5 file. The file will be named
+‘{ensembleset_base_name}.h5’. Default is ‘ensembleset’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.label" title="Link to this definition"></a></dt>
+<dd><p>Name of the label column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.train_data">
+<span class="sig-name descname"><span class="pre">train_data</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.train_data" title="Link to this definition"></a></dt>
+<dd><p>Training features (without label column).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.test_data">
+<span class="sig-name descname"><span class="pre">test_data</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.test_data" title="Link to this definition"></a></dt>
+<dd><p>Testing features (without label column).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.train_labels">
+<span class="sig-name descname"><span class="pre">train_labels</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.train_labels" title="Link to this definition"></a></dt>
+<dd><p>Training labels extracted from train_data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.test_labels">
+<span class="sig-name descname"><span class="pre">test_labels</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.test_labels" title="Link to this definition"></a></dt>
+<dd><p>Testing labels extracted from test_data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.string_features">
+<span class="sig-name descname"><span class="pre">string_features</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.string_features" title="Link to this definition"></a></dt>
+<dd><p>List of string feature column names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.data_directory">
+<span class="sig-name descname"><span class="pre">data_directory</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.data_directory" title="Link to this definition"></a></dt>
+<dd><p>Path to output directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.ensembleset_base_name">
+<span class="sig-name descname"><span class="pre">ensembleset_base_name</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.ensembleset_base_name" title="Link to this definition"></a></dt>
+<dd><p>Base name for output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.string_encodings">
+<span class="sig-name descname"><span class="pre">string_encodings</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.string_encodings" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of available string encoding methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.numerical_methods">
+<span class="sig-name descname"><span class="pre">numerical_methods</span></span><a class="headerlink" href="#ensembleset.dataset.DataSet.numerical_methods" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of available numerical feature engineering methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.dataset</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ds</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample training and testing data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;num_feature1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;num_feature2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;num_feature1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;num_feature2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Initialize DataSet with string feature specification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">test_data</span><span class="o">=</span><span class="n">test_df</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">string_features</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cat_feature&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">data_directory</span><span class="o">=</span><span class="s1">&#39;./ensemble_output&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ensembleset_base_name</span><span class="o">=</span><span class="s1">&#39;my_ensemble&#39;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate 5 datasets with 3 feature engineering steps each,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># using 20% of features per step</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_file</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">n_steps</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Label columns are automatically removed from feature DataFrames and
+stored separately as numpy arrays.</p></li>
+<li><p>String features are encoded before numerical transformations are applied.</p></li>
+<li><p>All transformations are fitted on training data only to prevent data
+leakage, even when test data is provided.</p></li>
+<li><p>Generated datasets are saved in HDF5 format with the structure:
+dataset.h5/train/labels, dataset.h5/train/dataset_N,
+dataset.h5/test/labels, dataset.h5/test/dataset_N</p></li>
+<li><p>Uses multiprocessing for parallel dataset generation.</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#ensembleset.dataset.DataSet.make_datasets" title="ensembleset.dataset.DataSet.make_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_datasets</span></code></a></dt><dd><p>Generate ensemble datasets with specified parameters</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.feature_engineerings</span></code></dt><dd><p>Configuration of available methods</p>
+</dd>
+</dl>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ensembleset_data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensembleset_base_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ensembleset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/dataset.html#DataSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.dataset.DataSet.__init__" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>train_data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_data</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>string_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>data_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>ensembleset_base_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ensembleset.dataset.DataSet.make_datasets">
+<span class="sig-name descname"><span class="pre">make_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/dataset.html#DataSet.make_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.dataset.DataSet.make_datasets" title="Link to this definition"></a></dt>
+<dd><p>Generate ensemble datasets using randomized feature engineering pipelines.</p>
+<p>Creates multiple dataset variations by applying randomized sequences of
+feature engineering methods to randomly selected subsets of features.
+Each dataset undergoes a unique transformation pipeline, with feature
+selection re-randomized at each engineering step.</p>
+<p>The method uses multiprocessing to generate datasets in parallel, with
+the number of worker processes equal to half the available CPU cores.
+All generated datasets are saved to an HDF5 file in the specified
+data directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_datasets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of dataset variations to generate. Each dataset will have
+a unique sequence of feature engineering transformations applied.
+Must be a positive integer.</p></li>
+<li><p><strong>frac_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Fraction of features to randomly select for each feature engineering
+step. Must be between 0 and 1. For example, 0.1 means 10% of
+available features are selected at each step. The selection is
+re-randomized for each step in the pipeline.</p></li>
+<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of feature engineering steps to apply in sequence for each
+dataset. Each step randomly selects a method from the available
+feature engineering techniques. Must be a positive integer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated HDF5 file containing all ensemble datasets.
+The file structure is:
+- train/labels: Training labels (np.ndarray)
+- train/dataset_0, train/dataset_1, …: Training feature sets
+- test/labels: Testing labels (np.ndarray, if test_data provided)
+- test/dataset_0, test/dataset_1, …: Testing feature sets</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.dataset</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ds</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Initialize ensemble</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">data_directory</span><span class="o">=</span><span class="s1">&#39;./output&#39;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate 10 datasets, using 20% of features per step,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># with 5 engineering steps each</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_file</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">n_steps</span><span class="o">=</span><span class="mi">5</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Datasets saved to: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># With test data included</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;feature3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">600</span><span class="p">,</span> <span class="mi">700</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensemble_with_test</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DataSet</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">train_data</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">test_data</span><span class="o">=</span><span class="n">test_df</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_file</span> <span class="o">=</span> <span class="n">ensemble_with_test</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_datasets</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">frac_features</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">n_steps</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Each dataset has a unique random sequence of feature engineering methods</p></li>
+<li><p>Feature selection is re-randomized after each engineering step</p></li>
+<li><p>At least 1 feature is always selected, even if frac_features * n_features &lt; 1</p></li>
+<li><p>String features are encoded first (if specified), then numerical methods
+are applied</p></li>
+<li><p>All transformations are fitted on training data only to prevent leakage</p></li>
+<li><p>When test_data is provided, fitted transformations are applied to both
+training and testing data</p></li>
+<li><p>Uses multiprocessing with worker count = cpu_count() // 2</p></li>
+<li><p>Progress and debugging information is logged during execution</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#module-ensembleset.feature_methods" title="ensembleset.feature_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.feature_methods</span></code></a></dt><dd><p>Individual feature engineering functions</p>
+</dd>
+<dt><a class="reference internal" href="#module-ensembleset.preprocessing_methods" title="ensembleset.preprocessing_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.preprocessing_methods</span></code></a></dt><dd><p>Data preprocessing utilities</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ensembleset.feature_methods">
+<span id="feature-engineering-methods"></span><h2>Feature Engineering Methods<a class="headerlink" href="#module-ensembleset.feature_methods" title="Link to this heading"></a></h2>
+<p>Collection of functions to run feature engineering operations.</p>
+<p>This module provides feature engineering functions for generating ensemble
+datasets. Functions include polynomial features, splines, logarithmic and
+exponential transformations, ratio and arithmetic operations, Gaussian KDE
+smoothing, and binning. String features can be encoded using one-hot or
+ordinal encoding.</p>
+<p>All functions follow a consistent interface accepting training and testing
+DataFrames, feature lists, and keyword arguments, returning the transformed
+DataFrames with minimal data leakage.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#module-ensembleset.preprocessing_methods" title="ensembleset.preprocessing_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.preprocessing_methods</span></code></a></dt><dd><p>Data preprocessing utilities</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.feature_engineerings</span></code></dt><dd><p>Configuration dictionaries for methods</p>
+</dd>
+</dl>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.onehot_encoding">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">onehot_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#onehot_encoding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.onehot_encoding" title="Link to this definition"></a></dt>
+<dd><p>Apply one-hot encoding to categorical string features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data containing features to encode.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame</em><em> or </em><em>None</em>) – Testing data to apply fitted encoder to.</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – Names of string feature columns to encode.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keyword arguments passed to sklearn.preprocessing.OneHotEncoder.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data with one-hot encoded features replacing originals.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame or None</em>) – Testing data with one-hot encoded features, or None if input was None.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#ensembleset.feature_methods.ordinal_encoding" title="ensembleset.feature_methods.ordinal_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordinal_encoding</span></code></a></dt><dd><p>Alternative ordinal encoding for string features</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.ordinal_encoding">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">ordinal_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#ordinal_encoding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.ordinal_encoding" title="Link to this definition"></a></dt>
+<dd><p>Apply ordinal encoding to categorical string features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data containing features to encode.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame</em><em> or </em><em>None</em>) – Testing data to apply fitted encoder to.</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – Names of string feature columns to encode.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keyword arguments passed to sklearn.preprocessing.OrdinalEncoder.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data with ordinal encoded features in place.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame or None</em>) – Testing data with ordinal encoded features, or None if input was None.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#ensembleset.feature_methods.onehot_encoding" title="ensembleset.feature_methods.onehot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">onehot_encoding</span></code></a></dt><dd><p>Alternative one-hot encoding for string features</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.poly_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">poly_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shortcircuit_preprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#poly_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.poly_features" title="Link to this definition"></a></dt>
+<dd><p>Generate polynomial features from selected feature combinations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data containing features to transform.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame</em><em> or </em><em>None</em>) – Testing data to apply fitted transformer to.</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of feature columns to generate polynomial features from.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keyword arguments passed to sklearn.preprocessing.PolynomialFeatures.
+Common keys: ‘degree’ (2 or 3).</p></li>
+<li><p><strong>shortcircuit_preprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default=False</em>) – If True, skip preprocessing steps.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>train_df</strong> (<em>pd.DataFrame</em>) – Training data with polynomial features added.</p></li>
+<li><p><strong>test_df</strong> (<em>pd.DataFrame or None</em>) – Testing data with polynomial features added, or None if input was None.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#ensembleset.feature_methods.spline_features" title="ensembleset.feature_methods.spline_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spline_features</span></code></a></dt><dd><p>Alternative spline-based feature transformation</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.spline_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">spline_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shortcircuit_preprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#spline_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.spline_features" title="Link to this definition"></a></dt>
+<dd><p>Runs sklearn’s polynomial feature transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+<li><p><strong>shortcircuit_preprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.log_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">log_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#log_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.log_features" title="Link to this definition"></a></dt>
+<dd><p>Takes log of feature, uses sklearn min-max scaler if needed
+to avoid undefined log errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.ratio_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">ratio_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#ratio_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.ratio_features" title="Link to this definition"></a></dt>
+<dd><p>Adds every possible ratio feature, replaces divide by zero errors
+with np.nan.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.exponential_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">exponential_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#exponential_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.exponential_features" title="Link to this definition"></a></dt>
+<dd><p>Adds exponential features with base 2 or base e.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.sum_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">sum_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#sum_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.sum_features" title="Link to this definition"></a></dt>
+<dd><p>Adds sum features for variable number of addends.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.difference_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">difference_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#difference_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.difference_features" title="Link to this definition"></a></dt>
+<dd><p>Adds difference features for variable number of subtrahends.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.kde_smoothing">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">kde_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shortcircuit_preprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#kde_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.kde_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Uses kernel density estimation to smooth features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+<li><p><strong>shortcircuit_preprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.feature_methods.kbins_quantization">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_methods.</span></span><span class="sig-name descname"><span class="pre">kbins_quantization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shortcircuit_preprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/feature_methods.html#kbins_quantization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.feature_methods.kbins_quantization" title="Link to this definition"></a></dt>
+<dd><p>Discretizes feature with Kbins quantization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>)</p></li>
+<li><p><strong>shortcircuit_preprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ensembleset.preprocessing_methods">
+<span id="preprocessing-methods"></span><h2>Preprocessing Methods<a class="headerlink" href="#module-ensembleset.preprocessing_methods" title="Link to this heading"></a></h2>
+<p>Data preprocessing utilities for feature engineering pipelines.</p>
+<p>This module provides preprocessing functions used to clean and prepare data
+before and after feature engineering operations. Functions include handling
+missing values, removing constant features, scaling, type conversions, and
+managing extreme values.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#module-ensembleset.feature_methods" title="ensembleset.feature_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensembleset.feature_methods</span></code></a></dt><dd><p>Feature engineering operations</p>
+</dd>
+</dl>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.preprocess_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">preprocess_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessing_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#preprocess_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.preprocess_features" title="Link to this definition"></a></dt>
+<dd><p>Runs feature preprocessing steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>preprocessing_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.exclude_string_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">exclude_string_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#exclude_string_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.exclude_string_features" title="Link to this definition"></a></dt>
+<dd><p>Removes string features from features list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.enforce_floats">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">enforce_floats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#enforce_floats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.enforce_floats" title="Link to this definition"></a></dt>
+<dd><p>Changes features to float dtype.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.remove_inf">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">remove_inf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#remove_inf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.remove_inf" title="Link to this definition"></a></dt>
+<dd><p>Replaces any np.inf values with np.NAN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.remove_large_nums">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">remove_large_nums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#remove_large_nums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.remove_large_nums" title="Link to this definition"></a></dt>
+<dd><p>Replaces numbers larger than the cube root of the float64 limit with np.nan.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.remove_small_nums">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">remove_small_nums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#remove_small_nums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.remove_small_nums" title="Link to this definition"></a></dt>
+<dd><p>Replaces values smaller than the float64 limit with zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.knn_impute">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">knn_impute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#knn_impute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.knn_impute" title="Link to this definition"></a></dt>
+<dd><p>Uses SciKit-lean’s KNN imputer to fill np.nan.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.remove_constants">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">remove_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#remove_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.remove_constants" title="Link to this definition"></a></dt>
+<dd><p>Removes constant valued features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.scale_to_range">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">scale_to_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#scale_to_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.scale_to_range" title="Link to this definition"></a></dt>
+<dd><p>Scales features into range</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>)</p></li>
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>min_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>max_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ensembleset.preprocessing_methods.add_new_features">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.preprocessing_methods.</span></span><span class="sig-name descname"><span class="pre">add_new_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_train_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_test_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ensembleset/preprocessing_methods.html#add_new_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ensembleset.preprocessing_methods.add_new_features" title="Link to this definition"></a></dt>
+<dd><p>Adds new features to dataframes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+<li><p><strong>test_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><em>DataFrame</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="configuration.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

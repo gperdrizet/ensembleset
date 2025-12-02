@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature Engineering Catalog &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d996134c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Feature Engineering Catalog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#string-feature-encoding">String Feature Encoding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#one-hot-encoding">1. One-Hot Encoding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ordinal-encoding">2. Ordinal Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#numerical-feature-engineering">Numerical Feature Engineering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#polynomial-features">3. Polynomial Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spline-features">4. Spline Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logarithmic-features">5. Logarithmic Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ratio-features">6. Ratio Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exponential-features">7. Exponential Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sum-features">8. Sum Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#difference-features">9. Difference Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gaussian-kde-smoothing">10. Gaussian KDE Smoothing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#k-bins-quantization">11. K-Bins Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-engineering-pipeline">Feature Engineering Pipeline</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Feature Engineering Catalog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/feature_catalog.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="feature-engineering-catalog">
+<h1>Feature Engineering Catalog<a class="headerlink" href="#feature-engineering-catalog" title="Link to this heading"></a></h1>
+<p>This page provides detailed descriptions of all 11 feature engineering methods available in EnsembleSet.</p>
+<section id="string-feature-encoding">
+<h2>String Feature Encoding<a class="headerlink" href="#string-feature-encoding" title="Link to this heading"></a></h2>
+<section id="one-hot-encoding">
+<h3>1. One-Hot Encoding<a class="headerlink" href="#one-hot-encoding" title="Link to this heading"></a></h3>
+<p>Converts categorical string features into binary indicator columns.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For a categorical feature with <span class="math notranslate nohighlight">\(k\)</span> unique categories, one-hot encoding creates <span class="math notranslate nohighlight">\(k\)</span> binary columns where each column represents one category. For a given sample, exactly one column has value 1 (the category present) and all others are 0.</p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Nominal categorical features without inherent ordering</p></li>
+<li><p>Features with low to moderate cardinality</p></li>
+<li><p>When treating each category as independent is appropriate</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: [&#39;A&#39;, &#39;B&#39;, &#39;A&#39;, &#39;C&#39;]</span>
+<span class="c1"># Output:</span>
+<span class="c1">#   A  B  C</span>
+<span class="c1">#   1  0  0</span>
+<span class="c1">#   0  1  0</span>
+<span class="c1">#   1  0  0</span>
+<span class="c1">#   0  0  1</span>
+</pre></div>
+</div>
+</section>
+<section id="ordinal-encoding">
+<h3>2. Ordinal Encoding<a class="headerlink" href="#ordinal-encoding" title="Link to this heading"></a></h3>
+<p>Converts categorical string features into integer codes.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>Each unique category is mapped to an integer. For <span class="math notranslate nohighlight">\(k\)</span> unique categories, integers from 0 to <span class="math notranslate nohighlight">\(k-1\)</span> are assigned.</p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Ordinal categorical features with inherent ordering</p></li>
+<li><p>High-cardinality categorical features where one-hot encoding would create too many columns</p></li>
+<li><p>Tree-based models that can handle encoded categories</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: [&#39;low&#39;, &#39;medium&#39;, &#39;high&#39;, &#39;low&#39;]</span>
+<span class="c1"># Output: [0, 1, 2, 0]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="numerical-feature-engineering">
+<h2>Numerical Feature Engineering<a class="headerlink" href="#numerical-feature-engineering" title="Link to this heading"></a></h2>
+<section id="polynomial-features">
+<h3>3. Polynomial Features<a class="headerlink" href="#polynomial-features" title="Link to this heading"></a></h3>
+<p>Generates polynomial and interaction features from existing features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For degree <span class="math notranslate nohighlight">\(d\)</span>, polynomial features include all monomials of degree <span class="math notranslate nohighlight">\(\leq d\)</span>. For two features <span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_2\)</span> with degree 2:</p>
+<div class="math notranslate nohighlight">
+\[[1, x_1, x_2, x_1^2, x_1 x_2, x_2^2]\]</div>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Capturing non-linear relationships</p></li>
+<li><p>Modeling feature interactions</p></li>
+<li><p>Polynomial regression models</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Degree: 2 or 3</p></li>
+<li><p>Interaction only: Include only cross-products</p></li>
+<li><p>Include bias: Add constant term</p></li>
+</ul>
+</section>
+<section id="spline-features">
+<h3>4. Spline Features<a class="headerlink" href="#spline-features" title="Link to this heading"></a></h3>
+<p>Applies spline basis transformations to features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>Spline transformations create piecewise polynomial functions. B-splines of degree <span class="math notranslate nohighlight">\(d\)</span> with <span class="math notranslate nohighlight">\(k\)</span> knots create smooth curves defined by control points.</p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Flexible non-linear transformations</p></li>
+<li><p>Smoother than polynomial features</p></li>
+<li><p>Capturing complex non-linear patterns</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Degree: 2, 3, or 4</p></li>
+<li><p>Knots: Number and placement (uniform or quantile)</p></li>
+<li><p>Extrapolation: Behavior outside knot range</p></li>
+</ul>
+</section>
+<section id="logarithmic-features">
+<h3>5. Logarithmic Features<a class="headerlink" href="#logarithmic-features" title="Link to this heading"></a></h3>
+<p>Applies logarithmic transformations to compress large value ranges.</p>
+<p><strong>Mathematical Description:</strong></p>
+<div class="math notranslate nohighlight">
+\[y = \log_b(x)\]</div>
+<p>where <span class="math notranslate nohighlight">\(b \in \{2, e, 10\}\)</span></p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Features with exponential distributions or heavy right tails</p></li>
+<li><p>Reducing the impact of outliers</p></li>
+<li><p>Making multiplicative relationships additive</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Base: 2, e (natural log), or 10</p></li>
+</ul>
+<p><strong>Note:</strong> Handles zero and negative values by preprocessing.</p>
+</section>
+<section id="ratio-features">
+<h3>6. Ratio Features<a class="headerlink" href="#ratio-features" title="Link to this heading"></a></h3>
+<p>Creates ratio features from all pairwise divisions of selected features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For features <span class="math notranslate nohighlight">\(x_1, x_2, ..., x_n\)</span>, creates:</p>
+<div class="math notranslate nohighlight">
+\[r_{ij} = \frac{x_i}{x_j} \quad \forall i \neq j\]</div>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Capturing relative relationships between features</p></li>
+<li><p>Normalizing features by reference values</p></li>
+<li><p>Financial ratios (e.g., price/earnings)</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Division by zero value: Replacement value (default: NaN)</p></li>
+</ul>
+</section>
+<section id="exponential-features">
+<h3>7. Exponential Features<a class="headerlink" href="#exponential-features" title="Link to this heading"></a></h3>
+<p>Applies exponential transformations to features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<div class="math notranslate nohighlight">
+\[y = b^x\]</div>
+<p>where <span class="math notranslate nohighlight">\(b \in \{2, e\}\)</span></p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Inverse of logarithmic transformation</p></li>
+<li><p>Amplifying small differences</p></li>
+<li><p>Modeling exponential growth</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Base: 2 or e (natural exponential)</p></li>
+</ul>
+<p><strong>Note:</strong> Handles overflow by preprocessing.</p>
+</section>
+<section id="sum-features">
+<h3>8. Sum Features<a class="headerlink" href="#sum-features" title="Link to this heading"></a></h3>
+<p>Creates features by summing combinations of selected features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For <span class="math notranslate nohighlight">\(n\)</span> addends, creates sums of all combinations:</p>
+<div class="math notranslate nohighlight">
+\[s = x_{i_1} + x_{i_2} + ... + x_{i_n}\]</div>
+<p>where <span class="math notranslate nohighlight">\(n \in \{2, 3, 4\}\)</span></p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Capturing aggregate effects</p></li>
+<li><p>Total or cumulative values</p></li>
+<li><p>Additive relationships</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Number of addends: 2, 3, or 4</p></li>
+</ul>
+</section>
+<section id="difference-features">
+<h3>9. Difference Features<a class="headerlink" href="#difference-features" title="Link to this heading"></a></h3>
+<p>Creates features by computing differences of feature combinations.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For <span class="math notranslate nohighlight">\(n\)</span> subtrahends, creates:</p>
+<div class="math notranslate nohighlight">
+\[d = x_{i_1} - x_{i_2} - ... - x_{i_n}\]</div>
+<p>where <span class="math notranslate nohighlight">\(n \in \{2, 3, 4\}\)</span></p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Change or delta features</p></li>
+<li><p>Comparing related measurements</p></li>
+<li><p>Removing baseline effects</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Number of subtrahends: 2, 3, or 4</p></li>
+</ul>
+</section>
+<section id="gaussian-kde-smoothing">
+<h3>10. Gaussian KDE Smoothing<a class="headerlink" href="#gaussian-kde-smoothing" title="Link to this heading"></a></h3>
+<p>Applies Gaussian kernel density estimation to smooth features.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>For each feature value <span class="math notranslate nohighlight">\(x\)</span>, estimates the probability density:</p>
+<div class="math notranslate nohighlight">
+\[\hat{f}(x) = \frac{1}{nh} \sum_{i=1}^{n} K\left(\frac{x - x_i}{h}\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(K\)</span> is the Gaussian kernel and <span class="math notranslate nohighlight">\(h\)</span> is the bandwidth.</p>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Noise reduction</p></li>
+<li><p>Identifying underlying distributions</p></li>
+<li><p>Smoothing irregular patterns</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Bandwidth: ‘scott’ or ‘silverman’ method</p></li>
+<li><p>Sample size: Number of samples for KDE calculation</p></li>
+</ul>
+<p><strong>Note:</strong> Fitted on training data only, then applied to both train and test.</p>
+</section>
+<section id="k-bins-quantization">
+<h3>11. K-Bins Quantization<a class="headerlink" href="#k-bins-quantization" title="Link to this heading"></a></h3>
+<p>Discretizes continuous features into bins.</p>
+<p><strong>Mathematical Description:</strong></p>
+<p>Divides the feature range into <span class="math notranslate nohighlight">\(k\)</span> bins and assigns each value to a bin:</p>
+<div class="math notranslate nohighlight">
+\[y = \text{bin}(x) \in \{0, 1, ..., k-1\}\]</div>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Converting continuous to categorical features</p></li>
+<li><p>Reducing sensitivity to small variations</p></li>
+<li><p>Handling non-linear relationships with linear models</p></li>
+</ul>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p>Number of bins: 4, 8, or 16</p></li>
+<li><p>Strategy: uniform, quantile, or k-means</p></li>
+<li><p>Encoding: ordinal</p></li>
+</ul>
+</section>
+</section>
+<section id="feature-engineering-pipeline">
+<h2>Feature Engineering Pipeline<a class="headerlink" href="#feature-engineering-pipeline" title="Link to this heading"></a></h2>
+<p>During ensemble generation, these methods are:</p>
+<ol class="arabic simple">
+<li><p><strong>Randomly selected</strong> - Each dataset gets a unique sequence</p></li>
+<li><p><strong>Applied in sequence</strong> - Methods build on previous transformations</p></li>
+<li><p><strong>Applied to random subsets</strong> - Only a fraction of features are transformed at each step</p></li>
+<li><p><strong>Fitted on training data</strong> - All transformations use training data statistics to prevent leakage</p></li>
+<li><p><strong>Applied to test data</strong> - The same fitted transformations are applied to test data</p></li>
+</ol>
+<p>This randomization strategy creates diverse datasets suitable for training ensemble models while maintaining consistent transformations between training and testing data.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

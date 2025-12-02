@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration &mdash; EnsembleSet 1.0-alpha.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d996134c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Feature Engineering Catalog" href="feature_catalog.html" />
+    <link rel="prev" title="API Reference" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnsembleSet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#string-encoding-methods">String Encoding Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_engineerings.STRING_ENCODINGS"><code class="docutils literal notranslate"><span class="pre">ensembleset.feature_engineerings.STRING_ENCODINGS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#numerical-feature-engineering-methods">Numerical Feature Engineering Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensembleset.feature_engineerings.NUMERICAL_METHODS"><code class="docutils literal notranslate"><span class="pre">ensembleset.feature_engineerings.NUMERICAL_METHODS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-selection">Parameter Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="feature_catalog.html">Feature Engineering Catalog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnsembleSet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
+<p>EnsembleSet uses configuration dictionaries to define available feature engineering methods and their parameter options.</p>
+<section id="string-encoding-methods">
+<h2>String Encoding Methods<a class="headerlink" href="#string-encoding-methods" title="Link to this heading"></a></h2>
+<p>String features are encoded before numerical feature engineering methods are applied.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="ensembleset.feature_engineerings.STRING_ENCODINGS">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_engineerings.</span></span><span class="sig-name descname"><span class="pre">STRING_ENCODINGS</span></span><a class="headerlink" href="#ensembleset.feature_engineerings.STRING_ENCODINGS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of available string encoding methods and their default parameters.</p>
+<p><strong>Available Methods:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_encoding</span></code> - One-hot encoding using sklearn’s OneHotEncoder</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">sparse_output</span></code>: False - Return dense arrays</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ordinal_encoding</span></code> - Ordinal encoding using sklearn’s OrdinalEncoder</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">handle_unknown</span></code>: ‘use_encoded_value’ - Handle unknown categories</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unknown_value</span></code>: np.nan - Value to use for unknown categories</p></li>
+</ul>
+</li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="numerical-feature-engineering-methods">
+<h2>Numerical Feature Engineering Methods<a class="headerlink" href="#numerical-feature-engineering-methods" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="ensembleset.feature_engineerings.NUMERICAL_METHODS">
+<span class="sig-prename descclassname"><span class="pre">ensembleset.feature_engineerings.</span></span><span class="sig-name descname"><span class="pre">NUMERICAL_METHODS</span></span><a class="headerlink" href="#ensembleset.feature_engineerings.NUMERICAL_METHODS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of available numerical feature engineering methods and their parameter options.</p>
+<p><strong>Available Methods:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">poly_features</span></code> - Polynomial feature generation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">degree</span></code>: [2, 3] - Polynomial degree options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interaction_only</span></code>: [True, False] - Include only interaction features</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_bias</span></code>: [True, False] - Include bias column</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spline_features</span></code> - Spline transformation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_knots</span></code>: [5] - Number of knots</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">degree</span></code>: [2, 3, 4] - Spline degree options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">knots</span></code>: [‘uniform’, ‘quantile’] - Knot placement strategy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extrapolation</span></code>: [‘constant’, ‘linear’, ‘continue’, ‘periodic’] - Extrapolation method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_bias</span></code>: [True, False] - Include bias column</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_features</span></code> - Logarithmic transformation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code>: [‘2’, ‘e’, ‘10’] - Logarithm base options</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ratio_features</span></code> - Ratio/division features</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">div_zero_value</span></code>: [np.nan] - Value to use for division by zero</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exponential_features</span></code> - Exponential transformation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code>: [‘2’, ‘e’] - Exponential base options</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sum_features</span></code> - Sum of feature combinations</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_addends</span></code>: [2, 3, 4] - Number of features to sum</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">difference_features</span></code> - Difference of feature combinations</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_subtrahends</span></code>: [2, 3, 4] - Number of features in subtraction</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kde_smoothing</span></code> - Gaussian kernel density estimation smoothing</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bandwidth</span></code>: [‘scott’, ‘silverman’] - Bandwidth selection method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sample_size</span></code>: [1000] - Number of samples for KDE</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kbins_quantization</span></code> - Quantization into bins</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_bins</span></code>: [4, 8, 16] - Number of bins options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">encode</span></code>: [‘ordinal’] - Encoding method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strategy</span></code>: [‘uniform’, ‘quantile’, ‘kmeans’] - Binning strategy</p></li>
+</ul>
+</li>
+</ul>
+</dd></dl>
+
+</section>
+<section id="parameter-selection">
+<h2>Parameter Selection<a class="headerlink" href="#parameter-selection" title="Link to this heading"></a></h2>
+<p>During dataset generation, parameters are randomly selected from the available options. For example:</p>
+<ul class="simple">
+<li><p>Polynomial features may use degree 2 or 3</p></li>
+<li><p>Spline features may use degree 2, 3, or 4</p></li>
+<li><p>Log features may use base 2, e, or 10</p></li>
+</ul>
+<p>This randomization ensures diversity across the generated ensemble datasets.</p>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Link to this heading"></a></h2>
+<p>While the configuration dictionaries are predefined, users can modify them by accessing the module attributes if custom parameter ranges are desired. However, this is not typically necessary for standard use cases.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ensembleset.feature_engineerings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">engineerings</span>
+
+<span class="c1"># View available string encoding methods</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">engineerings</span><span class="o">.</span><span class="n">STRING_ENCODINGS</span><span class="p">)</span>
+
+<span class="c1"># View available numerical methods</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">engineerings</span><span class="o">.</span><span class="n">NUMERICAL_METHODS</span><span class="p">)</span>
+
+<span class="c1"># Check polynomial feature options</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">engineerings</span><span class="o">.</span><span class="n">NUMERICAL_METHODS</span><span class="p">[</span><span class="s1">&#39;poly_features&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="feature_catalog.html" class="btn btn-neutral float-right" title="Feature Engineering Catalog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, George Perdrizet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
