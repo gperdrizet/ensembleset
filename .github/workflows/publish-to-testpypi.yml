@@ -1,0 +1,70 @@
+name: Publish to TestPyPI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-build:
+    name: Test Build Package
+    runs-on: ubuntu-latest
+    environment: test-pypi
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Build package
+      run: python -m build
+    
+    - name: Check package
+      run: twine check dist/*
+    
+    - name: List distribution contents
+      run: |
+        echo "=== Source Distribution Contents ==="
+        tar tzf dist/*.tar.gz
+        echo ""
+        echo "=== Wheel Contents ==="
+        unzip -l dist/*.whl
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+        retention-days: 7
+
+  deploy-test:
+    name: Deploy to TestPyPI
+    needs: test-build  # Only run if build succeeds
+    runs-on: ubuntu-latest
+    environment: test-pypi
+    permissions:
+      contents: read
+      id-token: write  # Required for trusted publishing
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+    
+    - name: Publish to TestPyPI using Trusted Publishing
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
