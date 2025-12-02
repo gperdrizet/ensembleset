@@ -48,4 +48,4 @@ PyPI = "https://pypi.org/project/ensembleset"
 
 [tool.setuptools.packages.find]
 include = ["ensembleset*"]
-exclude = ["tests*", "notebooks*", "docs*" "data*"]
+exclude = ["tests*", "notebooks*", "docs*", "data*"]
